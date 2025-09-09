@@ -5,9 +5,18 @@ import alunoRoutes from "./src/routes/aluno.routes.js";
 import universidadeRoutes from "./src/routes/universidade.routes.js";
 import authRoutes from "./src/routes/auth.routes.js"
 import { sequelize } from "./src/initModels.js";
+import cors from "cors";
 
 
 const app = express();
+
+// Configuração CORS
+app.use(cors({
+  origin: "http://localhost:8081", // endereço do frontend
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
 app.use(bodyParser.json());
 
 app.use("/api/certificados", certificadoRoutes);
