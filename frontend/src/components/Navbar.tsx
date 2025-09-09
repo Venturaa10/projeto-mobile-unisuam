@@ -2,14 +2,18 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/AppNavigator";
 
-// Define as props que o Navbar recebe
 interface NavbarProps {
-  onLogout: () => void;
+  onLogout?: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
   const [tipo, setTipo] = useState<string | null>(null);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
     const loadTipo = async () => {
@@ -22,6 +26,19 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Meu App</Text>
+
+      {/* Quando o usuário NÃO está logado */}
+      {!tipo && (
+        <View style={styles.menu}>
+          <Button title="Login" onPress={() => navigation.navigate("Login")} />
+          <Button
+            title="Cadastro"
+            onPress={() => navigation.navigate("Cadastro")}
+          />
+        </View>
+      )}
+
+      {/* Quando o usuário é aluno */}
       {tipo === "aluno" && (
         <View style={styles.menu}>
           <Button title="Meus Certificados" onPress={() => {}} />
@@ -29,6 +46,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
           <Button title="Logout" onPress={onLogout} />
         </View>
       )}
+
+      {/* Quando o usuário é universidade */}
       {tipo === "universidade" && (
         <View style={styles.menu}>
           <Button title="Registrar Certificado" onPress={() => {}} />
