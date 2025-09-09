@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from "react-native";
 import api from "../services/api";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type CadastroScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Cadastro">;
 type UserType = "aluno" | "universidade";
@@ -12,7 +13,7 @@ type UserType = "aluno" | "universidade";
 const CadastroScreen: React.FC = () => {
   const [userType, setUserType] = useState<UserType>("aluno");
   const [nome, setNome] = useState("");
-  const [cpfCnpj, setCpfCnpj] = useState(""); // CPF ou CNPJ
+  const [cpfCnpj, setCpfCnpj] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
@@ -21,6 +22,20 @@ const CadastroScreen: React.FC = () => {
   const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
 
   const navigation = useNavigation<CadastroScreenNavigationProp>();
+
+  // Limpar tokens e redirecionar se já logado
+  useEffect(() => {
+    const init = async () => {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("tipo");
+
+      const existingToken = await AsyncStorage.getItem("token");
+      if (existingToken) {
+        navigation.replace("Home"); // Redireciona sem permitir voltar
+      }
+    };
+    init();
+  }, []);
 
   const handleCadastro = async () => {
     if (!nome || !cpfCnpj || !email || !senha || !confirmarSenha) {
@@ -47,9 +62,8 @@ const CadastroScreen: React.FC = () => {
         "Sucesso",
         `${userType === "aluno" ? "Aluno" : "Universidade"} cadastrado com sucesso!`
       );
-      console.log("Cadastro:", response.data);
 
-      navigation.navigate("Login");
+      navigation.replace("Login"); // Redireciona para login
     } catch (err: any) {
       Alert.alert("Erro", err.response?.data?.error || "Erro ao cadastrar");
     } finally {
@@ -82,25 +96,22 @@ const CadastroScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Campo nome */}
-        <TextInput
+      <TextInput
         style={styles.input}
         placeholder={userType === "aluno" ? "Nome Completo" : "Nome da Instituição/Universidade"}
         value={nome}
         onChangeText={setNome}
-        />
+      />
 
-      {/* Campo CPF/CNPJ */}
       <TextInput
         style={styles.input}
         placeholder={userType === "aluno" ? "CPF" : "CNPJ"}
         value={cpfCnpj}
         onChangeText={setCpfCnpj}
         keyboardType="default"
-        maxLength={11}
+        maxLength={userType === "aluno" ? 11 : 14}
       />
 
-      {/* Campo Email */}
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -109,7 +120,7 @@ const CadastroScreen: React.FC = () => {
         keyboardType="email-address"
       />
 
-      {/* Campo senha com olhinho */}
+      {/* Senha */}
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.inputPassword}
@@ -123,7 +134,7 @@ const CadastroScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Confirmar senha com olhinho */}
+      {/* Confirmar senha */}
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.inputPassword}
@@ -141,13 +152,13 @@ const CadastroScreen: React.FC = () => {
         <Text style={styles.buttonText}>{getButtonText()}</Text>
       </TouchableOpacity>
 
-      {/* Link para Login */}
       <TouchableOpacity onPress={() => navigation.navigate("Login")} style={styles.link}>
         <Text style={styles.linkText}>Já tem conta? Entrar</Text>
       </TouchableOpacity>
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20 },

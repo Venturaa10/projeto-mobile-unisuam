@@ -1,12 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import Navbar from "../components/Navbar"
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Navbar from "../components/Navbar";
 
 const BuscaCertificadoScreen: React.FC = () => {
   const [tipoBusca, setTipoBusca] = useState("cpf");
   const [valor, setValor] = useState("");
+
+  // Limpar token e tipo sempre que entrar na tela
+  useEffect(() => {
+    const clearUserData = async () => {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("tipo");
+    };
+    clearUserData();
+  }, []);
 
   const handleBuscar = () => {
     console.log(`Buscar por ${tipoBusca}: ${valor}`);
@@ -57,13 +66,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#f9fafb", // cinza clarinho
+    backgroundColor: "#f9fafb",
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
     marginBottom: 30,
-    color: "#1f2937", // cinza escuro
+    color: "#1f2937",
     textAlign: "center",
   },
   pickerContainer: {

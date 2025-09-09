@@ -1,5 +1,4 @@
-// src/screens/LoginScreen.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import api, { LoginResponse } from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,6 +16,20 @@ const LoginScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation<LoginScreenNavigationProp>();
 
+  // Limpar tokens e redirecionar se já logado
+  useEffect(() => {
+    const init = async () => {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("tipo");
+
+      const existingToken = await AsyncStorage.getItem("token");
+      if (existingToken) {
+        navigation.replace("Home"); // redireciona sem permitir voltar
+      }
+    };
+    init();
+  }, []);
+
   const handleLogin = async () => {
     if (!login || !senha) {
       Alert.alert("Erro", "Preencha todos os campos");
@@ -32,10 +45,8 @@ const LoginScreen: React.FC = () => {
       await AsyncStorage.setItem("token", response.data.token);
       await AsyncStorage.setItem("tipo", response.data.tipo);
 
-      console.log("TOKEN:", response.data.token);
-
       // Redirecionar para a HomeScreen
-      navigation.navigate("Home");
+      navigation.replace("Home");
     } catch (err: any) {
       Alert.alert("Erro", err.response?.data?.error || "Erro ao logar");
     } finally {
@@ -68,7 +79,6 @@ const LoginScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Campo de login */}
       <TextInput
         style={styles.input}
         placeholder={userType === "aluno" ? "CPF ou Email" : "CNPJ ou Email"}
@@ -76,7 +86,6 @@ const LoginScreen: React.FC = () => {
         onChangeText={setLogin}
       />
 
-      {/* Campo de senha */}
       <TextInput
         style={styles.input}
         placeholder="Senha"
@@ -89,7 +98,6 @@ const LoginScreen: React.FC = () => {
         <Text style={styles.buttonText}>{getButtonText()}</Text>
       </TouchableOpacity>
 
-      {/* Botão para cadastro */}
       <TouchableOpacity
         style={styles.registerButton}
         onPress={() => navigation.navigate("Cadastro")}
