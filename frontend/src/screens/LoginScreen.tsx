@@ -8,7 +8,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Login">;
-
 type UserType = "aluno" | "universidade";
 
 const LoginScreen: React.FC = () => {
@@ -18,38 +17,36 @@ const LoginScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation<LoginScreenNavigationProp>();
 
-const handleLogin = async () => {
-  if (!login || !senha) {
-    Alert.alert("Erro", "Preencha todos os campos");
-    return;
-  }
+  const handleLogin = async () => {
+    if (!login || !senha) {
+      Alert.alert("Erro", "Preencha todos os campos");
+      return;
+    }
 
-  setLoading(true);
-  try {
-    const endpoint = userType === "aluno" ? "/auth/aluno" : "/auth/universidade";
-    const response = await api.post<LoginResponse>(endpoint, { login, senha });
+    setLoading(true);
+    try {
+      const endpoint = userType === "aluno" ? "/auth/aluno" : "/auth/universidade";
+      const response = await api.post<LoginResponse>(endpoint, { login, senha });
 
-    // Salvar token e tipo
-    await AsyncStorage.setItem("token", response.data.token);
-    await AsyncStorage.setItem("tipo", response.data.tipo);
+      // Salvar token e tipo
+      await AsyncStorage.setItem("token", response.data.token);
+      await AsyncStorage.setItem("tipo", response.data.tipo);
 
-    // Alert.alert("Sucesso", `Logado como ${response.data.tipo}`);
-    console.log("TOKEN:", response.data.token);
+      console.log("TOKEN:", response.data.token);
 
-    // Redirecionar para a HomeScreen
-    navigation.navigate("Home");
-  } catch (err: any) {
-    Alert.alert("Erro", err.response?.data?.error || "Erro ao logar");
-  } finally {
-    setLoading(false);
-  }
-};
-
+      // Redirecionar para a HomeScreen
+      navigation.navigate("Home");
+    } catch (err: any) {
+      Alert.alert("Erro", err.response?.data?.error || "Erro ao logar");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getButtonText = () => {
-  if (loading) return "Carregando...";
-  return userType === "aluno" ? "Entrar como Aluno" : "Entrar como Universidade";
-};
+    if (loading) return "Carregando...";
+    return userType === "aluno" ? "Entrar como Aluno" : "Entrar como Universidade";
+  };
 
   return (
     <View style={styles.container}>
@@ -77,7 +74,6 @@ const handleLogin = async () => {
         placeholder={userType === "aluno" ? "CPF ou Email" : "CNPJ ou Email"}
         value={login}
         onChangeText={setLogin}
-        keyboardType="default"
       />
 
       {/* Campo de senha */}
@@ -88,10 +84,18 @@ const handleLogin = async () => {
         onChangeText={setSenha}
         secureTextEntry
       />
-        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-        <Text style={styles.buttonText}>{getButtonText()}</Text>
-        </TouchableOpacity>
 
+      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+        <Text style={styles.buttonText}>{getButtonText()}</Text>
+      </TouchableOpacity>
+
+      {/* Botão para cadastro */}
+      <TouchableOpacity
+        style={styles.registerButton}
+        onPress={() => navigation.navigate("Cadastro")}
+      >
+        <Text style={styles.registerText}>Não tem conta? Cadastre-se</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -105,8 +109,10 @@ const styles = StyleSheet.create({
   optionText: { color: "#000" },
   selectedText: { color: "#fff", fontWeight: "bold" },
   input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 10, marginBottom: 15 },
-  button: { backgroundColor: "#4f46e5", padding: 15, borderRadius: 5, alignItems: "center" },
+  button: { backgroundColor: "#4f46e5", padding: 15, borderRadius: 5, alignItems: "center", marginBottom: 10 },
   buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  registerButton: { alignItems: "center", marginTop: 10 },
+  registerText: { color: "#4f46e5", fontWeight: "bold" },
 });
 
 export default LoginScreen;
