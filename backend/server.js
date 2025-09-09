@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import certificadoRoutes from "./src/routes/certificado.routes.js";
 import alunoRoutes from "./src/routes/aluno.routes.js";
 import universidadeRoutes from "./src/routes/universidade.routes.js";
+import authRoutes from "./src/routes/auth.routes.js"
 import { sequelize } from "./src/initModels.js";
 
 
@@ -12,6 +13,7 @@ app.use(bodyParser.json());
 app.use("/api/certificados", certificadoRoutes);
 app.use("/api/alunos", alunoRoutes);
 app.use("/api/universidades", universidadeRoutes);
+app.use("/api/auth", authRoutes);
 
 app.listen(3000, () => console.log("Servidor rodando na porta 3000"));
 

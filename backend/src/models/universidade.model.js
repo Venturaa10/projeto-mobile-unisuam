@@ -1,3 +1,5 @@
+// src/models/universidade.model.js
+import bcrypt from "bcryptjs";
 import { Op } from "sequelize";
 
 export default (sequelize, DataTypes) => {
@@ -13,23 +15,32 @@ export default (sequelize, DataTypes) => {
         // Remove pontuação do CNPJ
         uni.cnpj = uni.cnpj.replace(/\D/g, "");
 
-        // Verifica se já existe CNPJ
+        // Hash da senha
+        uni.senha = await bcrypt.hash(uni.senha, 10);
+
+        // Valida CNPJ único
         const cnpjExistente = await Universidade.findOne({ where: { cnpj: uni.cnpj } });
         if (cnpjExistente) throw new Error("CNPJ já cadastrado");
 
-        // Verifica se já existe email
+        // Valida email único
         const emailExistente = await Universidade.findOne({ where: { email: uni.email } });
         if (emailExistente) throw new Error("Email já cadastrado");
       },
       beforeUpdate: async (uni) => {
         uni.cnpj = uni.cnpj.replace(/\D/g, "");
 
-        // Validação para atualização (ignora o próprio registro)
+        // Se a senha foi alterada, cria hash
+        if (uni.changed("senha")) {
+          uni.senha = await bcrypt.hash(uni.senha, 10);
+        }
+
+        // Valida CNPJ único ignorando o próprio registro
         const cnpjExistente = await Universidade.findOne({ 
           where: { cnpj: uni.cnpj, id: { [Op.ne]: uni.id } } 
         });
         if (cnpjExistente) throw new Error("CNPJ já cadastrado");
 
+        // Valida email único ignorando o próprio registro
         const emailExistente = await Universidade.findOne({ 
           where: { email: uni.email, id: { [Op.ne]: uni.id } } 
         });
