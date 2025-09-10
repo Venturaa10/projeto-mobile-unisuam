@@ -1,5 +1,5 @@
 import express from "express";
-import { criarUniversidade, listarUniversidades, buscarUniversidadePorId, atualizarUniversidade } from "../controllers/universidade.controller.js";
+import { criarUniversidade, listarUniversidades, buscarUniversidadePorId, atualizarUniversidade, atualizarSenhaUniversidade } from "../controllers/universidade.controller.js";
 
 const router = express.Router();
 
@@ -13,5 +13,7 @@ router.get("/", listarUniversidades);
 router.get("/:id", buscarUniversidadePorId);
 
 router.patch("/:id", atualizarUniversidade);
+
+router.put("/senha/:id", atualizarSenhaUniversidade);
 
 export default router;

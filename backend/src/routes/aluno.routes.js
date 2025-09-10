@@ -1,5 +1,5 @@
 import express from "express";
-import { criarAluno, listarAlunos, buscarAlunoPorId, atualizarAluno } from "../controllers/aluno.controller.js";
+import { criarAluno, listarAlunos, buscarAlunoPorId, atualizarAluno, atualizarSenhaAluno } from "../controllers/aluno.controller.js";
 
 const router = express.Router();
 
@@ -13,5 +13,7 @@ router.get("/", listarAlunos);
 router.get("/:id", buscarAlunoPorId);
 
 router.patch("/:id", atualizarAluno);
+
+router.put("/senha/:id", atualizarSenhaAluno);
 
 export default router;

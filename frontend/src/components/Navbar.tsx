@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  TouchableWithoutFeedback,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -25,12 +33,27 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
     loadTipo();
   }, []);
 
+  const handleCloseMenu = () => setMenuOpen(false);
+
+  const handleLogout = () => {
+    handleCloseMenu();
+    if (onLogout) {
+      onLogout();
+    } else {
+      // fallback seguro
+      AsyncStorage.clear().then(() => {
+        console.log("Logout padrão executado");
+        navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+      });
+    }
+  };
+
   const renderMenuItems = () => {
     if (!tipo) {
       return (
         <>
-          <Button title="Login" onPress={() => navigation.navigate("Login")} />
-          <Button title="Cadastro" onPress={() => navigation.navigate("Cadastro")} />
+          <Button title="Login" onPress={() => { handleCloseMenu(); navigation.navigate("Login"); }} />
+          <Button title="Cadastro" onPress={() => { handleCloseMenu(); navigation.navigate("Cadastro"); }} />
         </>
       );
     }
@@ -38,9 +61,9 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
     if (tipo === "aluno") {
       return (
         <>
-          <Button title="Meus Certificados" onPress={() => {}} />
-        <Button title="Perfil" onPress={() => navigation.navigate("Perfil")} />
-          <Button title="Logout" onPress={onLogout} />
+          <Button title="Meus Certificados" onPress={() => { handleCloseMenu(); }} />
+          <Button title="Perfil" onPress={() => { handleCloseMenu(); navigation.navigate("Perfil"); }} />
+          <Button title="Logout" onPress={handleLogout} />
         </>
       );
     }
@@ -48,9 +71,9 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
     if (tipo === "universidade") {
       return (
         <>
-          <Button title="Registrar Certificado" onPress={() => {}} />
-        <Button title="Perfil" onPress={() => navigation.navigate("Perfil")} />
-          <Button title="Logout" onPress={onLogout} />
+          <Button title="Registrar Certificado" onPress={() => { handleCloseMenu(); }} />
+          <Button title="Perfil" onPress={() => { handleCloseMenu(); navigation.navigate("Perfil"); }} />
+          <Button title="Logout" onPress={handleLogout} />
         </>
       );
     }
@@ -60,20 +83,36 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
     <View style={styles.container}>
       {/* Header com nome do app e hamburger */}
       <View style={styles.headerRow}>
-        <TouchableOpacity onPress={() => navigation.navigate("BuscaCertificado")}>
-          <Text style={styles.title}>Meu App</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        onPress={async () => {
+          const token = await AsyncStorage.getItem("token");
+          if (token) {
+            // Usuário logado → vai para a HomeScreen
+            navigation.navigate("Home");
+          } else {
+            // Usuário não logado → vai para BuscaCertificado
+            navigation.navigate("BuscaCertificado");
+          }
+        }}
+      >
+        <Text style={styles.title}>Meu App</Text>
+      </TouchableOpacity>
+
 
         <TouchableOpacity style={styles.hamburger} onPress={() => setMenuOpen(!menuOpen)}>
           <Icon name={menuOpen ? "close" : "menu"} size={28} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {/* Menu flutuante */}
+      {/* Menu flutuante com fechamento ao clicar fora */}
       {menuOpen && (
-        <View style={styles.menuWrapper}>
-          <View style={styles.menu}>{renderMenuItems()}</View>
-        </View>
+        <TouchableWithoutFeedback onPress={handleCloseMenu}>
+          <View style={styles.menuOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.menu}>{renderMenuItems()}</View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
       )}
     </View>
   );
@@ -100,7 +139,7 @@ const styles = StyleSheet.create({
   title: { color: "#fff", fontWeight: "bold", fontSize: 20 },
   hamburger: { padding: 5 },
 
-  menuWrapper: {
+  menuOverlay: {
     position: "absolute",
     top: 0,
     left: 0,
@@ -109,7 +148,7 @@ const styles = StyleSheet.create({
     zIndex: 999,
     justifyContent: "flex-start",
     alignItems: "flex-end",
-    paddingTop: 60, // abaixo do navbar
+    paddingTop: 60,
     paddingRight: 16,
   },
 

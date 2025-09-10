@@ -30,29 +30,31 @@ const LoginScreen: React.FC = () => {
     init();
   }, []);
 
-  const handleLogin = async () => {
-    if (!login || !senha) {
-      Alert.alert("Erro", "Preencha todos os campos");
-      return;
-    }
+const handleLogin = async () => {
+  if (!login || !senha) {
+    Alert.alert("Erro", "Preencha todos os campos");
+    return;
+  }
 
-    setLoading(true);
-    try {
-      const endpoint = userType === "aluno" ? "/auth/aluno" : "/auth/universidade";
-      const response = await api.post<LoginResponse>(endpoint, { login, senha });
+  setLoading(true);
+  try {
+    const endpoint = userType === "aluno" ? "/auth/aluno" : "/auth/universidade";
+    const response = await api.post<LoginResponse>(endpoint, { login, senha });
 
-      // Salvar token e tipo
-      await AsyncStorage.setItem("token", response.data.token);
-      await AsyncStorage.setItem("tipo", response.data.tipo);
+    // Salvar token, tipo e dados do usuário
+    await AsyncStorage.setItem("token", response.data.token);
+    await AsyncStorage.setItem("tipo", response.data.tipo);
+    await AsyncStorage.setItem("usuario", JSON.stringify(response.data.usuario)); 
+  
 
-      // Redirecionar para a HomeScreen
-      navigation.replace("Home");
-    } catch (err: any) {
-      Alert.alert("Erro", err.response?.data?.error || "Erro ao logar");
-    } finally {
-      setLoading(false);
-    }
-  };
+    navigation.replace("Home");
+  } catch (err: any) {
+    Alert.alert("Erro", err.response?.data?.error || "Erro ao logar");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const getButtonText = () => {
     if (loading) return "Carregando...";

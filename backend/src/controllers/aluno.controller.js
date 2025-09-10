@@ -1,4 +1,5 @@
-import { Aluno } from "../initModels.js"; // <-- pega o model pronto
+import { Aluno } from "../initModels.js"; 
+import bcrypt from "bcryptjs";
 
 // Criar aluno
 export const criarAluno = async (req, res) => {
@@ -57,5 +58,30 @@ export const atualizarAluno = async (req, res) => {
     res.json(aluno);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+};
+
+// Atualizar senha do aluno
+export const atualizarSenhaAluno = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { senha } = req.body;
+
+    if (!senha) {
+      return res.status(400).json({ error: "A nova senha é obrigatória" });
+    }
+
+    const aluno = await Aluno.findByPk(id);
+    if (!aluno) {
+      return res.status(404).json({ error: "Aluno não encontrado" });
+    }
+
+    // Hash da senha
+    const hash = await bcrypt.hash(senha, 10);
+    await aluno.update({ senha: hash });
+
+    res.json({ message: "Senha atualizada com sucesso" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

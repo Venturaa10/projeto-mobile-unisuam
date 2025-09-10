@@ -1,7 +1,6 @@
-// src/navigation/AppNavigator.tsx
-import React from "react";
-import { View, StyleSheet, Alert } from "react-native";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator, NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -21,32 +20,46 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Wrapper que adiciona Navbar global com handleLogout
 const ScreenWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem("token");
-    await AsyncStorage.removeItem("tipo");
-    Alert.alert("Logout", "Você saiu da conta");
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }],
-    });
-  };
-
   return (
     <View style={styles.wrapper}>
-      <Navbar onLogout={handleLogout} />
+      <Navbar />
       <View style={styles.content}>{children}</View>
     </View>
   );
 };
 
 export default function AppNavigator() {
+  const [loading, setLoading] = useState(true);
+  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList>("Login");
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (token) {
+        // Usuário logado → vai para Home ou tela que desejar
+        setInitialRoute("Home");
+      } else {
+        // Usuário não logado → vai para BuscaCertificado (ou Login)
+        setInitialRoute("BuscaCertificado");
+      }
+      setLoading(false);
+    };
+    checkLogin();
+  }, []);
+
+  if (loading) {
+    // Enquanto verifica login, mostra loading
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#4f46e5" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="BuscaCertificado" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
         <Stack.Screen name="BuscaCertificado">
           {() => (
             <ScreenWrapper>
