@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from "react-native";
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import api from "../services/api";
-import * as ImagePicker from "expo-image-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Tipos para Navigation e Route
 type PerfilScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Perfil">;
 type PerfilScreenRouteProp = RouteProp<RootStackParamList, "Perfil">;
 
-// Interface do usuário
 interface User {
   id: number;
   nome: string;
@@ -21,7 +20,6 @@ interface User {
   logo?: string;
 }
 
-// Props do componente
 interface PerfilScreenProps {
   navigation: PerfilScreenNavigationProp;
   route: PerfilScreenRouteProp;
@@ -29,17 +27,16 @@ interface PerfilScreenProps {
 
 const PerfilScreen: React.FC<PerfilScreenProps> = ({ route }) => {
   const { userType, userId } = route.params;
+  const navigation = useNavigation<PerfilScreenNavigationProp>();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Campos de input
   const [nome, setNome] = useState("");
   const [cpfCnpj, setCpfCnpj] = useState("");
   const [email, setEmail] = useState("");
   const [foto, setFoto] = useState<string | undefined>(undefined);
 
-  // Buscar dados do usuário ao carregar
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -56,45 +53,55 @@ const PerfilScreen: React.FC<PerfilScreenProps> = ({ route }) => {
     };
     fetchUser();
   }, [userType, userId]);
+  
+  // Dentro do handleAtualizar
+const handleAtualizar = async () => {
+  setLoading(true);
+  try {
+    const endpoint =
+      userType === "aluno"
+        ? `/alunos/atualizarCampos/${userId}`
+        : `/universidades/atualizarCampos/${userId}`;
 
-  // Selecionar foto
-  const handleEscolherFoto = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-      allowsEditing: true,
-      aspect: [1, 1],
+    const payload: any = { nome, email };
+    if (userType === "aluno") payload.cpf = cpfCnpj;
+    else payload.cnpj = cpfCnpj;
+
+    const response = await api.put(endpoint, payload, {
+      headers: { "Content-Type": "application/json" },
     });
 
-    if (!result.canceled) {
-      setFoto(result.assets[0].uri);
-    }
-  };
+    const updatedUser = response.data;
 
-  // Atualizar perfil
-  const handleAtualizar = async () => {
-    setLoading(true);
-    try {
-      const endpoint = userType === "aluno" ? `/alunos/${userId}` : `/universidades/${userId}`;
-      const payload: any = { nome, email };
+    // Atualiza o state local
+    setUser(updatedUser);
+    setNome(updatedUser.nome);
+    setEmail(updatedUser.email);
+    if (userType === "aluno") setCpfCnpj(updatedUser.cpf || "");
+    else setCpfCnpj(updatedUser.cnpj || "");
 
-    if (userType === "aluno") {
-      payload.imagemPerfil = foto;
-      payload.cpf = cpfCnpj;
-    } else {
-      payload.logo = foto;
-      payload.cnpj = cpfCnpj;
-    }
+    // Atualiza AsyncStorage usando as chaves que a HomeScreen espera
+    await AsyncStorage.setItem("usuario", JSON.stringify(updatedUser));
+    await AsyncStorage.setItem("tipo", userType);
 
-      const response = await api.patch(endpoint, payload);
-      Alert.alert("Sucesso", "Perfil atualizado!");
-      setUser(response.data);
-    } catch (err: any) {
-      Alert.alert("Erro", err.response?.data?.error || "Não foi possível atualizar o perfil.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Mostra snackbar simples
+    Alert.alert("Sucesso", "Perfil atualizado!", [
+      {
+        text: "OK",
+        onPress: () => navigation.navigate("Home"),
+      },
+    ]);
+  } catch (err: any) {
+    console.error("Erro ao atualizar:", err.response?.data || err.message);
+    Alert.alert(
+      "Erro",
+      err.response?.data?.error || "Não foi possível atualizar o perfil."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (!user) return <Text>Carregando...</Text>;
 
@@ -103,12 +110,11 @@ const PerfilScreen: React.FC<PerfilScreenProps> = ({ route }) => {
       <Text style={styles.title}>Meu Perfil</Text>
 
       {/* Foto */}
-      <TouchableOpacity onPress={handleEscolherFoto}>
+      <TouchableOpacity disabled>
         <Image
-          // source={foto ? { uri: foto } : require("../assets/default-avatar.png")}
+          source={foto ? { uri: foto } : require("../../assets/perfil-logo-default.png")}
           style={styles.foto}
         />
-        <Text style={styles.link}>Alterar foto</Text>
       </TouchableOpacity>
 
       {/* Nome */}
@@ -117,17 +123,20 @@ const PerfilScreen: React.FC<PerfilScreenProps> = ({ route }) => {
         value={nome}
         onChangeText={setNome}
         placeholder={userType === "aluno" ? "Nome Completo" : "Nome da Instituição"}
+        maxLength={50}
       />
 
       {/* CPF/CNPJ */}
- <TextInput
-  style={styles.input}
-  value={cpfCnpj}
-  onChangeText={setCpfCnpj}
-  placeholder={userType === "aluno" ? "CPF" : "CNPJ"}
-  keyboardType="numeric"
-/>
-
+      <TextInput
+        style={styles.input}
+        value={cpfCnpj}
+        onChangeText={text => {
+          const max = userType === "aluno" ? 11 : 14;
+          if (text.length <= max) setCpfCnpj(text);
+        }}
+        placeholder={userType === "aluno" ? "CPF" : "CNPJ"}
+        keyboardType="numeric"
+      />
 
       {/* Email */}
       <TextInput
@@ -136,6 +145,7 @@ const PerfilScreen: React.FC<PerfilScreenProps> = ({ route }) => {
         onChangeText={setEmail}
         placeholder="Email"
         keyboardType="email-address"
+        maxLength={50}
       />
 
       <TouchableOpacity style={styles.button} onPress={handleAtualizar} disabled={loading}>

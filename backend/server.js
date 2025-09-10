@@ -6,7 +6,8 @@ import universidadeRoutes from "./src/routes/universidade.routes.js";
 import authRoutes from "./src/routes/auth.routes.js"
 import { sequelize } from "./src/initModels.js";
 import cors from "cors";
-
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 
@@ -24,6 +25,12 @@ app.use("/api/alunos", alunoRoutes);
 app.use("/api/universidades", universidadeRoutes);
 app.use("/api/auth", authRoutes);
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.listen(3000, () => console.log("Servidor rodando na porta 3000"));
 
 sequelize
@@ -32,3 +39,5 @@ sequelize
     console.log("Tabelas sincronizadas com o banco!");
   })
   .catch((err) => console.log("Erro ao sincronizar tabelas:", err));
+
+  

@@ -127,7 +127,7 @@ const CadastroScreen: React.FC = () => {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
-        maxLength={100}
+        maxLength={50}
       />
 
       {/* Senha */}

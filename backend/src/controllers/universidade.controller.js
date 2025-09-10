@@ -37,20 +37,28 @@ export const buscarUniversidadePorId = async (req, res) => {
 export const atualizarUniversidade = async (req, res) => {
   try {
     const { id } = req.params;
+    // console.log("ID recebido nos params:", id);
+    // console.log("Corpo da requisição (req.body):", req.body);
+
     const universidade = await Universidade.findByPk(id);
     if (!universidade) {
+      // console.log("Universidade não encontrada");
       return res.status(404).json({ error: "Universidade não encontrada" });
     }
 
     // Bloqueia alteração de senha diretamente aqui
     const { senha, ...dados } = req.body;
+    // console.log("Dados que serão atualizados:", dados);
 
     await universidade.update(dados);
+    // console.log("Universidade atualizada com sucesso");
     res.json(universidade);
   } catch (err) {
+    // console.error("Erro ao atualizar universidade:", err);
     res.status(400).json({ error: err.message });
   }
 };
+
 
 // Atualizar senha da universidade
 export const atualizarSenhaUniversidade = async (req, res) => {
