@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import api from "../services/api";
 import * as ImagePicker from "expo-image-picker";
 
+// Tipos para Navigation e Route
 type PerfilScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Perfil">;
-type UserType = "aluno" | "universidade";
+type PerfilScreenRouteProp = RouteProp<RootStackParamList, "Perfil">;
 
+// Interface do usuário
 interface User {
   id: number;
   nome: string;
@@ -19,8 +21,15 @@ interface User {
   logo?: string;
 }
 
-const PerfilScreen: React.FC<{ userType: UserType; userId: number }> = ({ userType, userId }) => {
-  const navigation = useNavigation<PerfilScreenNavigationProp>();
+// Props do componente
+interface PerfilScreenProps {
+  navigation: PerfilScreenNavigationProp;
+  route: PerfilScreenRouteProp;
+}
+
+const PerfilScreen: React.FC<PerfilScreenProps> = ({ route }) => {
+  const { userType, userId } = route.params;
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -30,6 +39,7 @@ const PerfilScreen: React.FC<{ userType: UserType; userId: number }> = ({ userTy
   const [email, setEmail] = useState("");
   const [foto, setFoto] = useState<string | undefined>(undefined);
 
+  // Buscar dados do usuário ao carregar
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -47,6 +57,7 @@ const PerfilScreen: React.FC<{ userType: UserType; userId: number }> = ({ userTy
     fetchUser();
   }, [userType, userId]);
 
+  // Selecionar foto
   const handleEscolherFoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -60,20 +71,20 @@ const PerfilScreen: React.FC<{ userType: UserType; userId: number }> = ({ userTy
     }
   };
 
+  // Atualizar perfil
   const handleAtualizar = async () => {
     setLoading(true);
     try {
       const endpoint = userType === "aluno" ? `/alunos/${userId}` : `/universidades/${userId}`;
-      const payload: any = {
-        nome,
-        email,
-      };
+      const payload: any = { nome, email };
 
-      if (userType === "aluno") payload.imagemPerfil = foto;
-      else payload.logo = foto;
-
-      // CPF/CNPJ não deve ser alterado aqui, mas se quiser permitir, inclua:
-      // payload.cpf = cpfCnpj; payload.cnpj = cpfCnpj;
+    if (userType === "aluno") {
+      payload.imagemPerfil = foto;
+      payload.cpf = cpfCnpj;
+    } else {
+      payload.logo = foto;
+      payload.cnpj = cpfCnpj;
+    }
 
       const response = await api.patch(endpoint, payload);
       Alert.alert("Sucesso", "Perfil atualizado!");
@@ -94,7 +105,7 @@ const PerfilScreen: React.FC<{ userType: UserType; userId: number }> = ({ userTy
       {/* Foto */}
       <TouchableOpacity onPress={handleEscolherFoto}>
         <Image
-          source={foto ? { uri: foto } : require("../assets/default-avatar.png")}
+          // source={foto ? { uri: foto } : require("../assets/default-avatar.png")}
           style={styles.foto}
         />
         <Text style={styles.link}>Alterar foto</Text>
@@ -109,11 +120,14 @@ const PerfilScreen: React.FC<{ userType: UserType; userId: number }> = ({ userTy
       />
 
       {/* CPF/CNPJ */}
-      <TextInput
-        style={[styles.input, { backgroundColor: "#f0f0f0" }]}
-        value={cpfCnpj}
-        editable={false} // Apenas leitura
-      />
+ <TextInput
+  style={styles.input}
+  value={cpfCnpj}
+  onChangeText={setCpfCnpj}
+  placeholder={userType === "aluno" ? "CPF" : "CNPJ"}
+  keyboardType="numeric"
+/>
+
 
       {/* Email */}
       <TextInput

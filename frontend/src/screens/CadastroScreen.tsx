@@ -108,7 +108,7 @@ const CadastroScreen: React.FC = () => {
         placeholder={userType === "aluno" ? "Nome Completo" : "Nome da Instituição/Universidade"}
         value={nome}
         onChangeText={setNome}
-        maxLength={80}
+        maxLength={50}
       />
 
       {/* CPF ou CNPJ com máscara */}

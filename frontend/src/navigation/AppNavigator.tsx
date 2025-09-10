@@ -8,6 +8,7 @@ import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
 import CadastroScreen from "../screens/CadastroScreen";
 import BuscaCertificadoScreen from "../screens/BuscaCertificadoScreen";
+import PerfilScreen from "../screens/PerfilScreen";
 import Navbar from "../components/Navbar";
 
 export type RootStackParamList = {
@@ -15,7 +16,7 @@ export type RootStackParamList = {
   Home: undefined;
   Cadastro: undefined;
   BuscaCertificado: undefined;
-  Perfil: undefined;
+  Perfil: { userType: "aluno" | "universidade"; userId: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -37,10 +38,8 @@ export default function AppNavigator() {
     const checkLogin = async () => {
       const token = await AsyncStorage.getItem("token");
       if (token) {
-        // Usuário logado → vai para Home ou tela que desejar
         setInitialRoute("Home");
       } else {
-        // Usuário não logado → vai para BuscaCertificado (ou Login)
         setInitialRoute("BuscaCertificado");
       }
       setLoading(false);
@@ -49,7 +48,6 @@ export default function AppNavigator() {
   }, []);
 
   if (loading) {
-    // Enquanto verifica login, mostra loading
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#4f46e5" />
@@ -88,6 +86,14 @@ export default function AppNavigator() {
             </ScreenWrapper>
           )}
         </Stack.Screen>
+      <Stack.Screen name="Perfil">
+        {({ navigation, route }) => (
+          <ScreenWrapper>
+            <PerfilScreen navigation={navigation} route={route} />
+          </ScreenWrapper>
+        )}
+      </Stack.Screen>
+
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -86,7 +86,7 @@ const handleLogin = async () => {
         placeholder={userType === "aluno" ? "CPF ou Email" : "CNPJ ou Email"}
         value={login}
         onChangeText={setLogin}
-        maxLength={80}
+        maxLength={50}
       />
 
       <TextInput

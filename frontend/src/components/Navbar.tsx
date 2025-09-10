@@ -25,13 +25,22 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  useEffect(() => {
-    const loadTipo = async () => {
-      const storedTipo = await AsyncStorage.getItem("tipo");
-      setTipo(storedTipo);
-    };
-    loadTipo();
-  }, []);
+const [usuario, setUsuario] = useState<{ id: number; nome: string } | null>(null);
+
+useEffect(() => {
+  const loadData = async () => {
+    const storedTipo = await AsyncStorage.getItem("tipo");
+    setTipo(storedTipo);
+
+    const storedUsuario = await AsyncStorage.getItem("usuario");
+    if (storedUsuario) {
+      const usuarioObj = JSON.parse(storedUsuario);
+      setUsuario(usuarioObj);
+    }
+  };
+  loadData();
+}, []);
+
 
   const handleCloseMenu = () => setMenuOpen(false);
 
@@ -62,7 +71,17 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
       return (
         <>
           <Button title="Meus Certificados" onPress={() => { handleCloseMenu(); }} />
-          <Button title="Perfil" onPress={() => { handleCloseMenu(); navigation.navigate("Perfil"); }} />
+<Button
+  title="Perfil"
+  onPress={() => {
+    handleCloseMenu();
+    if (usuario && tipo) {
+      navigation.navigate("Perfil", { userType: tipo as "aluno" | "universidade", userId: usuario.id });
+    } else {
+      console.log("Usuário não encontrado no storage");
+    }
+  }}
+/>
           <Button title="Logout" onPress={handleLogout} />
         </>
       );
@@ -72,7 +91,17 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
       return (
         <>
           <Button title="Registrar Certificado" onPress={() => { handleCloseMenu(); }} />
-          <Button title="Perfil" onPress={() => { handleCloseMenu(); navigation.navigate("Perfil"); }} />
+<Button
+  title="Perfil"
+  onPress={() => {
+    handleCloseMenu();
+    if (usuario && tipo) {
+      navigation.navigate("Perfil", { userType: tipo as "aluno" | "universidade", userId: usuario.id });
+    } else {
+      console.log("Usuário não encontrado no storage");
+    }
+  }}
+/>
           <Button title="Logout" onPress={handleLogout} />
         </>
       );
