@@ -84,6 +84,7 @@ const LoginScreen: React.FC = () => {
         placeholder={userType === "aluno" ? "CPF ou Email" : "CNPJ ou Email"}
         value={login}
         onChangeText={setLogin}
+        maxLength={80}
       />
 
       <TextInput
@@ -92,6 +93,7 @@ const LoginScreen: React.FC = () => {
         value={senha}
         onChangeText={setSenha}
         secureTextEntry
+        maxLength={25}
       />
 
       <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>

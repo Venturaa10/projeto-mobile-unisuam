@@ -31,3 +31,22 @@ export const buscarUniversidadePorId = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Atualizar universidade
+export const atualizarUniversidade = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const universidade = await Universidade.findByPk(id);
+    if (!universidade) {
+      return res.status(404).json({ error: "Universidade não encontrada" });
+    }
+
+    // Bloqueia alteração de senha diretamente aqui
+    const { senha, ...dados } = req.body;
+
+    await universidade.update(dados);
+    res.json(universidade);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

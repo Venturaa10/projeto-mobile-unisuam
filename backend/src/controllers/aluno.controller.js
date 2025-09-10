@@ -42,3 +42,20 @@ export const buscarAlunoPorId = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Atualizar aluno
+export const atualizarAluno = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const aluno = await Aluno.findByPk(id);
+    if (!aluno) return res.status(404).json({ error: "Aluno não encontrado" });
+
+    // Não permitir atualização de senha diretamente aqui
+    const { senha, ...dados } = req.body;
+
+    await aluno.update(dados);
+    res.json(aluno);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

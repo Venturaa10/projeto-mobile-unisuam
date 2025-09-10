@@ -19,6 +19,11 @@ export default (sequelize, DataTypes) => {
         // Hash da senha
         aluno.senha = await bcrypt.hash(aluno.senha, 10);
 
+        // Valida CPF único e tamanho
+        if (aluno.cpf.length !== 11) {
+          throw new Error("CPF deve ter exatamente 11 dígitos");
+        }
+
         // Valida CPF único
         const cpfExistente = await Aluno.findOne({ where: { cpf: aluno.cpf } });
         if (cpfExistente) throw new Error("CPF já cadastrado");
@@ -28,27 +33,29 @@ export default (sequelize, DataTypes) => {
         if (emailExistente) throw new Error("Email já cadastrado");
       },
 
-      // Antes de atualizar um aluno
-      beforeUpdate: async (aluno) => {
-        aluno.cpf = aluno.cpf.replace(/\D/g, "");
+beforeUpdate: async (aluno) => {
+  // Remove pontuação do CPF só se estiver presente
+  if (aluno.cpf) aluno.cpf = aluno.cpf.replace(/\D/g, "");
 
-        // Se a senha foi alterada, cria hash
-        if (aluno.changed("senha")) {
-          aluno.senha = await bcrypt.hash(aluno.senha, 10);
-        }
+// Verifica CPF apenas se foi alterado
+if (aluno.changed("cpf")) {
+  if (aluno.cpf.length !== 11) {
+    throw new Error("CPF deve ter exatamente 11 dígitos");
+  }
+  const cpfExistente = await Aluno.findOne({
+    where: { cpf: aluno.cpf, id: { [Op.ne]: aluno.id } }
+  });
+  if (cpfExistente) throw new Error("CPF já cadastrado");
+}
 
-        // Valida CPF único ignorando o próprio registro
-        const cpfExistente = await Aluno.findOne({ 
-          where: { cpf: aluno.cpf, id: { [Op.ne]: aluno.id } } 
-        });
-        if (cpfExistente) throw new Error("CPF já cadastrado");
-
-        // Valida email único ignorando o próprio registro
-        const emailExistente = await Aluno.findOne({ 
-          where: { email: aluno.email, id: { [Op.ne]: aluno.id } } 
-        });
-        if (emailExistente) throw new Error("Email já cadastrado");
-      }
+  // Verifica email apenas se foi alterado
+  if (aluno.changed("email")) {
+    const emailExistente = await Aluno.findOne({
+      where: { email: aluno.email, id: { [Op.ne]: aluno.id } }
+    });
+    if (emailExistente) throw new Error("Email já cadastrado");
+  }
+}
     }
   });
 

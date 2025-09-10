@@ -39,7 +39,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
       return (
         <>
           <Button title="Meus Certificados" onPress={() => {}} />
-          <Button title="Perfil" onPress={() => {}} />
+        <Button title="Perfil" onPress={() => navigation.navigate("Perfil")} />
           <Button title="Logout" onPress={onLogout} />
         </>
       );
@@ -49,7 +49,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
       return (
         <>
           <Button title="Registrar Certificado" onPress={() => {}} />
-          <Button title="Perfil" onPress={() => {}} />
+        <Button title="Perfil" onPress={() => navigation.navigate("Perfil")} />
           <Button title="Logout" onPress={onLogout} />
         </>
       );

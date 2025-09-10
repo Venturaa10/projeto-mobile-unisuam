@@ -15,6 +15,11 @@ export default (sequelize, DataTypes) => {
         // Remove pontuação do CNPJ
         uni.cnpj = uni.cnpj.replace(/\D/g, "");
 
+        // Valida tamanho do CNPJ
+        if (uni.cnpj.length !== 14) {
+          throw new Error("CNPJ deve ter exatamente 14 dígitos");
+        }
+
         // Hash da senha
         uni.senha = await bcrypt.hash(uni.senha, 10);
 
@@ -29,16 +34,18 @@ export default (sequelize, DataTypes) => {
       beforeUpdate: async (uni) => {
         uni.cnpj = uni.cnpj.replace(/\D/g, "");
 
-        // Se a senha foi alterada, cria hash
-        if (uni.changed("senha")) {
-          uni.senha = await bcrypt.hash(uni.senha, 10);
-        }
+      // Valida tamanho do CNPJ apenas se alterado
+      if (uni.changed("cnpj") && uni.cnpj.length !== 14) {
+        throw new Error("CNPJ deve ter exatamente 14 dígitos");
+      }
 
-        // Valida CNPJ único ignorando o próprio registro
+      // Valida CNPJ único ignorando o próprio registro
+      if (uni.changed("cnpj")) {
         const cnpjExistente = await Universidade.findOne({ 
           where: { cnpj: uni.cnpj, id: { [Op.ne]: uni.id } } 
         });
         if (cnpjExistente) throw new Error("CNPJ já cadastrado");
+      }
 
         // Valida email único ignorando o próprio registro
         const emailExistente = await Universidade.findOne({ 

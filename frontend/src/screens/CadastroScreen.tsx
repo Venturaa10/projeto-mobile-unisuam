@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TextInputMask } from "react-native-masked-text";
 
 type CadastroScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Cadastro">;
 type UserType = "aluno" | "universidade";
@@ -76,8 +77,13 @@ const CadastroScreen: React.FC = () => {
     return userType === "aluno" ? "Cadastrar como Aluno" : "Cadastrar como Universidade";
   };
 
+  // Limpar campo ao trocar tipo de usuario
+  useEffect(() => {
+    setCpfCnpj("");
+  }, [userType]);
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Cadastro</Text>
 
       {/* Seletor de tipo */}
@@ -96,28 +102,32 @@ const CadastroScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Nome */}
       <TextInput
         style={styles.input}
         placeholder={userType === "aluno" ? "Nome Completo" : "Nome da Instituição/Universidade"}
         value={nome}
         onChangeText={setNome}
+        maxLength={80}
       />
 
-      <TextInput
+      {/* CPF ou CNPJ com máscara */}
+      <TextInputMask
+        type={userType === "aluno" ? "cpf" : "cnpj"}
         style={styles.input}
         placeholder={userType === "aluno" ? "CPF" : "CNPJ"}
         value={cpfCnpj}
         onChangeText={setCpfCnpj}
-        keyboardType="default"
-        maxLength={userType === "aluno" ? 11 : 14}
       />
-
+      
+      {/* Email */}
       <TextInput
         style={styles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        maxLength={100}
       />
 
       {/* Senha */}
@@ -128,6 +138,7 @@ const CadastroScreen: React.FC = () => {
           value={senha}
           onChangeText={setSenha}
           secureTextEntry={!mostrarSenha}
+          maxLength={25}
         />
         <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
           <Ionicons name={mostrarSenha ? "eye-off" : "eye"} size={24} color="gray" />
@@ -142,6 +153,7 @@ const CadastroScreen: React.FC = () => {
           value={confirmarSenha}
           onChangeText={setConfirmarSenha}
           secureTextEntry={!mostrarConfirmarSenha}
+          maxLength={25}
         />
         <TouchableOpacity onPress={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}>
           <Ionicons name={mostrarConfirmarSenha ? "eye-off" : "eye"} size={24} color="gray" />

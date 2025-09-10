@@ -49,6 +49,7 @@ const BuscaCertificadoScreen: React.FC = () => {
             : "Digite o nome da Instituição"
         }
         value={valor}
+        maxLength={50}
         onChangeText={setValor}
       />
 
