@@ -10,6 +10,7 @@ import CadastroScreen from "../screens/CadastroScreen";
 import BuscaCertificadoScreen from "../screens/BuscaCertificadoScreen";
 import PerfilScreen from "../screens/PerfilScreen";
 import Navbar from "../components/Navbar";
+import RegistrarCertificadoScreen from "../screens/RegistraCertificadoScreen";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -17,6 +18,7 @@ export type RootStackParamList = {
   Cadastro: undefined;
   BuscaCertificado: undefined;
   Perfil: { userType: "aluno" | "universidade"; userId: number };
+  RegistrarCertificado: undefined; 
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

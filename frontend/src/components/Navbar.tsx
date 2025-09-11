@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import Icon from "react-native-vector-icons/Ionicons";
+import { Image } from "react-native";
 
 interface NavbarProps {
   onLogout?: () => void;
@@ -25,7 +26,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-const [usuario, setUsuario] = useState<{ id: number; nome: string } | null>(null);
+const [usuario, setUsuario] = useState<{ id: number; nome: string; imagem?: string } | null>(null);
 
 useEffect(() => {
   const loadData = async () => {
@@ -35,12 +36,20 @@ useEffect(() => {
     const storedUsuario = await AsyncStorage.getItem("usuario");
     if (storedUsuario) {
       const usuarioObj = JSON.parse(storedUsuario);
-      setUsuario(usuarioObj);
+
+      // pega a imagem do usuário ou default
+      const imagem =
+        storedTipo === "aluno"
+          ? usuarioObj.imagemPerfil || null
+          : storedTipo === "universidade"
+          ? usuarioObj.logo || null
+          : null;
+
+      setUsuario({ id: usuarioObj.id, nome: usuarioObj.nome, imagem });
     }
   };
   loadData();
 }, []);
-
 
   const handleCloseMenu = () => setMenuOpen(false);
 
@@ -111,27 +120,39 @@ useEffect(() => {
   return (
     <View style={styles.container}>
       {/* Header com nome do app e hamburger */}
-      <View style={styles.headerRow}>
-      <TouchableOpacity
-        onPress={async () => {
-          const token = await AsyncStorage.getItem("token");
-          if (token) {
-            // Usuário logado → vai para a HomeScreen
-            navigation.navigate("Home");
-          } else {
-            // Usuário não logado → vai para BuscaCertificado
-            navigation.navigate("BuscaCertificado");
-          }
-        }}
-      >
-        <Text style={styles.title}>Meu App</Text>
-      </TouchableOpacity>
+<View style={styles.headerRow}>
+  <TouchableOpacity
+    onPress={async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (token) {
+        navigation.navigate("Home");
+      } else {
+        navigation.navigate("BuscaCertificado");
+      }
+    }}
+    style={styles.appRow}
+  >
+    <Text style={styles.title}>Meu App</Text>
 
+    {usuario && (
+      <Image
+        source={
+          usuario.imagem
+            ? { uri: usuario.imagem }
+            : require("../../assets/perfil-logo-default.png") // fallback
+        }
+        style={styles.profileImage}
+      />
+    )}
+  </TouchableOpacity>
 
-        <TouchableOpacity style={styles.hamburger} onPress={() => setMenuOpen(!menuOpen)}>
-          <Icon name={menuOpen ? "close" : "menu"} size={28} color="#fff" />
-        </TouchableOpacity>
-      </View>
+  <TouchableOpacity
+    style={styles.hamburger}
+    onPress={() => setMenuOpen(!menuOpen)}
+  >
+    <Icon name={menuOpen ? "close" : "menu"} size={28} color="#fff" />
+  </TouchableOpacity>
+</View>
 
       {/* Menu flutuante com fechamento ao clicar fora */}
       {menuOpen && (
@@ -192,6 +213,21 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
   },
+
+  appRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 8, // espaçamento entre "Meu App" e a foto
+},
+profileImage: {
+  width: 32,
+  height: 32,
+  borderRadius: 16,
+  marginLeft: 8,
+  borderWidth: 1,
+  borderColor: "#fff",
+},
+
 });
 
 export default Navbar;
