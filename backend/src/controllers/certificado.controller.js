@@ -3,12 +3,24 @@ import { Certificado } from "../initModels.js"; // <-- pega o model pronto
 // Criar certificado
 export const criarCertificado = async (req, res) => {
   try {
-    const cert = await Certificado.create(req.body);
-    res.status(201).json(cert);
+    const { nomeAluno, cpfAluno, matricula, nomeCurso } = req.body;
+
+    const certificado = await Certificado.create({
+      nomeAluno,
+      cpfAluno: cpfAluno.replace(/\D/g, ""), // só números
+      matricula,
+      nomeCurso,
+      dataEmissao: new Date(),
+      arquivo: req.file ? `uploads/${req.file.filename}` : null,
+    });
+
+    res.status(201).json(certificado);
   } catch (err) {
+    console.error(err);
     res.status(400).json({ error: err.message });
   }
 };
+
 
 // Listar certificados de um aluno (apenas públicos se for acesso público)
 export const listarCertificadosPorCpf = async (req, res) => {

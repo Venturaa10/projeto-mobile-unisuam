@@ -96,25 +96,37 @@ useEffect(() => {
       );
     }
 
-    if (tipo === "universidade") {
-      return (
-        <>
-          <Button title="Registrar Certificado" onPress={() => { handleCloseMenu(); }} />
-<Button
-  title="Perfil"
-  onPress={() => {
-    handleCloseMenu();
-    if (usuario && tipo) {
-      navigation.navigate("Perfil", { userType: tipo as "aluno" | "universidade", userId: usuario.id });
-    } else {
-      console.log("Usuário não encontrado no storage");
-    }
-  }}
-/>
-          <Button title="Logout" onPress={handleLogout} />
-        </>
-      );
-    }
+if (tipo === "universidade") {
+  return (
+    <>
+      <Button
+        title="Registrar Certificado"
+        onPress={() => {
+          handleCloseMenu();
+          navigation.navigate("RegistraCertificado"); 
+        }}
+      />
+
+      <Button
+        title="Perfil"
+        onPress={() => {
+          handleCloseMenu();
+          if (usuario && tipo) {
+            navigation.navigate("Perfil", {
+              userType: tipo as "aluno" | "universidade",
+              userId: usuario.id,
+            });
+          } else {
+            console.log("Usuário não encontrado no storage");
+          }
+        }}
+      />
+
+      <Button title="Logout" onPress={handleLogout} />
+    </>
+  );
+}
+
   };
 
   return (

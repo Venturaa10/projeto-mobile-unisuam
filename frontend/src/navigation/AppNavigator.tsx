@@ -10,7 +10,7 @@ import CadastroScreen from "../screens/CadastroScreen";
 import BuscaCertificadoScreen from "../screens/BuscaCertificadoScreen";
 import PerfilScreen from "../screens/PerfilScreen";
 import Navbar from "../components/Navbar";
-import RegistrarCertificadoScreen from "../screens/RegistraCertificadoScreen";
+import RegistraCertificadoScreen from "../screens/RegistraCertificadoScreen";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -18,7 +18,7 @@ export type RootStackParamList = {
   Cadastro: undefined;
   BuscaCertificado: undefined;
   Perfil: { userType: "aluno" | "universidade"; userId: number };
-  RegistrarCertificado: undefined; 
+  RegistraCertificado: undefined; 
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -59,44 +59,56 @@ export default function AppNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="BuscaCertificado">
-          {() => (
-            <ScreenWrapper>
-              <BuscaCertificadoScreen />
-            </ScreenWrapper>
-          )}
-        </Stack.Screen>
-        <Stack.Screen name="Login">
-          {() => (
-            <ScreenWrapper>
-              <LoginScreen />
-            </ScreenWrapper>
-          )}
-        </Stack.Screen>
-        <Stack.Screen name="Home">
-          {() => (
-            <ScreenWrapper>
-              <HomeScreen />
-            </ScreenWrapper>
-          )}
-        </Stack.Screen>
-        <Stack.Screen name="Cadastro">
-          {() => (
-            <ScreenWrapper>
-              <CadastroScreen />
-            </ScreenWrapper>
-          )}
-        </Stack.Screen>
-      <Stack.Screen name="Perfil">
-        {({ navigation, route }) => (
-          <ScreenWrapper>
-            <PerfilScreen navigation={navigation} route={route} />
-          </ScreenWrapper>
-        )}
-      </Stack.Screen>
+     <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
+  <Stack.Screen name="BuscaCertificado">
+    {() => (
+      <ScreenWrapper>
+        <BuscaCertificadoScreen />
+      </ScreenWrapper>
+    )}
+  </Stack.Screen>
 
-      </Stack.Navigator>
+  <Stack.Screen name="Login">
+    {() => (
+      <ScreenWrapper>
+        <LoginScreen />
+      </ScreenWrapper>
+    )}
+  </Stack.Screen>
+
+  <Stack.Screen name="Home">
+    {() => (
+      <ScreenWrapper>
+        <HomeScreen />
+      </ScreenWrapper>
+    )}
+  </Stack.Screen>
+
+  <Stack.Screen name="Cadastro">
+    {() => (
+      <ScreenWrapper>
+        <CadastroScreen />
+      </ScreenWrapper>
+    )}
+  </Stack.Screen>
+
+  <Stack.Screen name="Perfil">
+    {({ navigation, route }) => (
+      <ScreenWrapper>
+        <PerfilScreen navigation={navigation} route={route} />
+      </ScreenWrapper>
+    )}
+  </Stack.Screen>
+
+  <Stack.Screen name="RegistraCertificado">
+    {() => (
+      <ScreenWrapper>
+        <RegistraCertificadoScreen />
+      </ScreenWrapper>
+    )}
+  </Stack.Screen>
+</Stack.Navigator>
+
     </NavigationContainer>
   );
 }

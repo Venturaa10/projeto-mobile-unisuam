@@ -5,6 +5,7 @@ export default (sequelize, DataTypes) => {
     matricula: { type: DataTypes.STRING, allowNull: true },
     nomeCurso: { type: DataTypes.STRING, allowNull: false },
     dataEmissao: { type: DataTypes.DATE, allowNull: false },
+    arquivo: { type: DataTypes.STRING, allowNull: true },
     publico: { type: DataTypes.BOOLEAN, defaultValue: false },
   },
  {

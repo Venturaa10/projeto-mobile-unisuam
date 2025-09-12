@@ -17,6 +17,10 @@ web-build/
 dist/
 *.log
 
+backend/src/uploads/*
+
+
+
 # IDEs
 .vscode/
 .idea/
