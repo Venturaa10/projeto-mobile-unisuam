@@ -8,7 +8,8 @@ import express from "express";
 import {
   criarCertificado,
   listarCertificadosPorCpf,
-  atualizarPrivacidade
+  atualizarPrivacidade,
+listarTodosCertificados
 } from "../controllers/certificado.controller.js";
 import multer from "multer";
 import path from "path";
@@ -29,6 +30,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Agora aplicamos o multer no controller
+router.get("/", listarTodosCertificados);
 router.post("/", upload.single("arquivo"), criarCertificado);
 router.get("/aluno/:cpf", listarCertificadosPorCpf);
 router.patch("/privacidade/:id", atualizarPrivacidade);

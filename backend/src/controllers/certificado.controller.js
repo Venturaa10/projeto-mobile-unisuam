@@ -25,18 +25,34 @@ export const criarCertificado = async (req, res) => {
 // Listar certificados de um aluno (apenas públicos se for acesso público)
 export const listarCertificadosPorCpf = async (req, res) => {
   try {
-    const { cpf } = req.params;
+    let { cpf } = req.params;
+
+    // Remove tudo que não é número
+    cpf = cpf.replace(/\D/g, "");
+
     const certificados = await Certificado.findAll({
       where: {
         cpfAluno: cpf,
-        publico: true // apenas visíveis publicamente
+        // publico: true // apenas visíveis publicamente
       }
     });
+
     res.json(certificados);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Listar todos os certificados (opcional: apenas admin)
+export const listarTodosCertificados = async (req, res) => {
+  try {
+    const certificados = await Certificado.findAll();
+    res.json(certificados);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 // Atualizar privacidade de certificado
 export const atualizarPrivacidade = async (req, res) => {

@@ -79,7 +79,13 @@ useEffect(() => {
     if (tipo === "aluno") {
       return (
         <>
-          <Button title="Meus Certificados" onPress={() => { handleCloseMenu(); }} />
+<Button
+  title="Meus Certificados"
+  onPress={() => {
+    handleCloseMenu();
+    navigation.navigate("MeusCertificados");
+  }}
+/>
 <Button
   title="Perfil"
   onPress={() => {

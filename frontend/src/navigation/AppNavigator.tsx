@@ -11,6 +11,7 @@ import BuscaCertificadoScreen from "../screens/BuscaCertificadoScreen";
 import PerfilScreen from "../screens/PerfilScreen";
 import Navbar from "../components/Navbar";
 import RegistraCertificadoScreen from "../screens/RegistraCertificadoScreen";
+import MeusCertificadosScreen from "../screens/MeusCertificadosScreen";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -19,6 +20,7 @@ export type RootStackParamList = {
   BuscaCertificado: undefined;
   Perfil: { userType: "aluno" | "universidade"; userId: number };
   RegistraCertificado: undefined; 
+  MeusCertificados: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -107,6 +109,14 @@ export default function AppNavigator() {
       </ScreenWrapper>
     )}
   </Stack.Screen>
+  <Stack.Screen name="MeusCertificados">
+  {() => (
+    <ScreenWrapper>
+      <MeusCertificadosScreen />
+    </ScreenWrapper>
+  )}
+</Stack.Screen>
+
 </Stack.Navigator>
 
     </NavigationContainer>
