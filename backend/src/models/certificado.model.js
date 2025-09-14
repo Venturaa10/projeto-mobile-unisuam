@@ -19,5 +19,14 @@ export default (sequelize, DataTypes) => {
 }
 });
 
+  // Relação com universidade
+  // Certificado.associate = (models) => {
+  //   Certificado.belongsTo(models.Universidade, {
+  //     foreignKey: "universidadeId",
+  //     as: "universidade",
+  //   });
+  // };
+
+
   return Certificado;
 };

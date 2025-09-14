@@ -22,10 +22,11 @@ export default function MeusCertificadosScreen() {
         if (!usuario) return;
 
         const parsedUser = JSON.parse(usuario);
-        const cpf = parsedUser.cpf?.replace(/\D/g, ""); // apenas números
-        if (!cpf) return;
+        const documento = parsedUser.cpf_cnpj?.replace(/\D/g, ""); // apenas números
+        if (!documento) return;
 
-        const response = await api.get(`/certificados/aluno/${cpf}`);
+        const response = await api.get(`/certificados/aluno/${documento}`);
+
         setCertificados(response.data);
       } catch (err) {
         console.error("Erro ao buscar certificados:", err);

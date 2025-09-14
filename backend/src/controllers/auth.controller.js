@@ -27,7 +27,17 @@ export const loginAluno = async (req, res) => {
 
     const token = jwt.sign({ id: aluno.id, tipo: "aluno" }, JWT_SECRET, { expiresIn: "1d" });
 
-    res.json({ token, tipo: "aluno", usuario: { id: aluno.id, nome: aluno.nome, email: aluno.email } });
+    // Retornando CPF também
+    res.json({ 
+      token, 
+      tipo: "aluno", 
+      usuario: { 
+        id: aluno.id, 
+        nome: aluno.nome, 
+        email: aluno.email,
+        cpf_cnpj: aluno.cpf 
+      } 
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -55,7 +65,17 @@ export const loginUniversidade = async (req, res) => {
 
     const token = jwt.sign({ id: uni.id, tipo: "universidade" }, JWT_SECRET, { expiresIn: "1d" });
 
-    res.json({ token, tipo: "universidade", usuario: { id: uni.id, nome: uni.nome, email: uni.email } });
+    // Retornando CNPJ também
+    res.json({ 
+      token, 
+      tipo: "universidade", 
+      usuario: { 
+        id: uni.id, 
+        nome: uni.nome, 
+        email: uni.email,
+        cpf_cnpj: uni.cnpj 
+      } 
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
