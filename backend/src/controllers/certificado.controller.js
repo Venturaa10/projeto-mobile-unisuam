@@ -1,17 +1,18 @@
-import { Certificado } from "../initModels.js"; // <-- pega o model pronto
+import { Certificado, Universidade } from "../initModels.js";
 
 // Criar certificado
 export const criarCertificado = async (req, res) => {
   try {
-    const { nomeAluno, cpfAluno, matricula, nomeCurso } = req.body;
+    const { nomeAluno, cpfAluno, matricula, nomeCurso, universidadeId } = req.body;
 
     const certificado = await Certificado.create({
       nomeAluno,
-      cpfAluno: cpfAluno.replace(/\D/g, ""), // só números
+      cpfAluno: cpfAluno.replace(/\D/g, ""),
       matricula,
       nomeCurso,
       dataEmissao: new Date(),
       arquivo: req.file ? `uploads/${req.file.filename}` : null,
+      universidadeId,
     });
 
     res.status(201).json(certificado);
@@ -26,15 +27,18 @@ export const criarCertificado = async (req, res) => {
 export const listarCertificadosPorCpf = async (req, res) => {
   try {
     let { cpf } = req.params;
-
-    // Remove tudo que não é número
-    cpf = cpf.replace(/\D/g, "");
+    cpf = cpf.replace(/\D/g, ""); // só números
 
     const certificados = await Certificado.findAll({
-      where: {
-        cpfAluno: cpf,
-        // publico: true // apenas visíveis publicamente
-      }
+      where: { cpfAluno: cpf },
+      include: [
+        {
+          model: Universidade,
+          as: "universidade",
+          attributes: ["id", "nome"], // só os campos que quer expor
+        }
+      ],
+      order: [["dataEmissao", "DESC"]],
     });
 
     res.json(certificados);
@@ -42,6 +46,7 @@ export const listarCertificadosPorCpf = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Listar todos os certificados (opcional: apenas admin)
 export const listarTodosCertificados = async (req, res) => {

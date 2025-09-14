@@ -33,6 +33,6 @@ const upload = multer({ storage });
 router.get("/", listarTodosCertificados);
 router.post("/", upload.single("arquivo"), criarCertificado);
 router.get("/aluno/:cpf", listarCertificadosPorCpf);
-router.patch("/privacidade/:id", atualizarPrivacidade);
+router.patch("/:id/privacidade", atualizarPrivacidade);
 
 export default router;

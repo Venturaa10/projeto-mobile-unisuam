@@ -24,29 +24,18 @@ const RegistraCertificadoScreen: React.FC = () => {
   const [pdfFile, setPdfFile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-// Função para formatar CPF
-const formatCPF = (value: string) => {
-  // Remove tudo que não for número
-  let cpf = value.replace(/\D/g, "");
+  // Formata CPF
+  const formatCPF = (value: string) => {
+    let cpf = value.replace(/\D/g, "");
+    if (cpf.length > 3) cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+    if (cpf.length > 6) cpf = cpf.replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+    if (cpf.length > 9) cpf = cpf.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+    return cpf;
+  };
 
-  // Aplica máscara
-  if (cpf.length > 3) cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
-  if (cpf.length > 6) cpf = cpf.replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-  if (cpf.length > 9) cpf = cpf.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
-
-  return cpf;
-};
-
-// Função para validar CPF (apenas quantidade de dígitos)
-const isCPFValid = (cpf: string) => {
-  const onlyNumbers = cpf.replace(/\D/g, ""); // remove pontos e traço
-  return onlyNumbers.length === 11;
-};
-
-  // Função para escolher arquivo
+  // Seleciona PDF
   const handleSelectPdf = async () => {
     if (Platform.OS === "web") {
-      // No web, usamos input file HTML
       const input = document.createElement("input");
       input.type = "file";
       input.accept = ".pdf";
@@ -56,7 +45,6 @@ const isCPFValid = (cpf: string) => {
       };
       input.click();
     } else {
-      // Mobile
       try {
         const res = await DocumentPicker.pick({ type: [DocumentPicker.types.pdf] });
         setPdfFile(res[0]);
@@ -66,77 +54,78 @@ const isCPFValid = (cpf: string) => {
     }
   };
 
-const handleSubmit = async () => {
-  const nomeTrim = nomeAluno.trim();
-  const cpfOnlyNumbers = cpfAluno.replace(/\D/g, ""); // remove pontos e traço
+  const handleSubmit = async () => {
+    const nomeTrim = nomeAluno.trim();
+    const cpfOnlyNumbers = cpfAluno.replace(/\D/g, "");
 
-  // Campos obrigatórios
-  if (!nomeTrim || !cpfAluno || !nomeCurso || !pdfFile) {
-    Alert.alert("Erro", "Preencha todos os campos obrigatórios.");
-    return;
-  }
-
-  // Validação CPF
-  if (cpfOnlyNumbers.length !== 11) {
-    Alert.alert("Erro", "O CPF deve conter exatamente 11 dígitos.");
-    return;
-  }
-
-  // Validação nome (apenas letras e espaços)
-  if (!/^[A-Za-zÀ-ÖØ-öø-ÿ ]+$/.test(nomeTrim)) {
-    Alert.alert("Erro", "O nome do aluno deve conter apenas letras e espaços.");
-    return;
-  }
-
-  try {
-    setLoading(true);
-    const token = await AsyncStorage.getItem("token");
-
-    const formData = new FormData();
-    formData.append("nomeAluno", nomeTrim);
-    formData.append("cpfAluno", cpfOnlyNumbers); // envia só números
-    formData.append("matricula", matricula);
-    formData.append("nomeCurso", nomeCurso);
-
-    if (Platform.OS === "web") {
-      // No web, PDF precisa ser File
-      formData.append(
-        "arquivo",
-        new File([pdfFile], pdfFile.name, { type: "application/pdf" })
-      );
-    } else {
-      // Mobile
-      formData.append("arquivo", {
-        uri: pdfFile.uri,
-        type: pdfFile.type || "application/pdf",
-        name: pdfFile.name || "certificado.pdf",
-      } as any);
+    if (!nomeTrim || !cpfAluno || !nomeCurso || !pdfFile) {
+      Alert.alert("Erro", "Preencha todos os campos obrigatórios.");
+      return;
     }
 
-    const response = await api.post("/certificados/", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: token ? `Bearer ${token}` : "",
-      },
-    });
+    if (cpfOnlyNumbers.length !== 11) {
+      Alert.alert("Erro", "O CPF deve conter exatamente 11 dígitos.");
+      return;
+    }
 
-    Alert.alert("Sucesso", "Certificado registrado com sucesso!");
-    console.log("Certificado criado:", response.data);
+    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ ]+$/.test(nomeTrim)) {
+      Alert.alert("Erro", "O nome do aluno deve conter apenas letras e espaços.");
+      return;
+    }
 
-    // limpa formulário
-    setNomeAluno("");
-    setCpfAluno("");
-    setMatricula("");
-    setNomeCurso("");
-    setPdfFile(null);
-  } catch (err: any) {
-    console.error(err);
-    Alert.alert("Erro", err.response?.data?.error || "Erro ao registrar certificado");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      const token = await AsyncStorage.getItem("token");
 
+      // Pega usuário logado para obter universidadeId
+      const usuarioStr = await AsyncStorage.getItem("usuario");
+      if (!usuarioStr) throw new Error("Usuário não encontrado");
+      const usuario = JSON.parse(usuarioStr);
+      const universidadeId = usuario.universidadeId || usuario.id; // depende de como você armazenou
+
+      const formData = new FormData();
+      formData.append("nomeAluno", nomeTrim);
+      formData.append("cpfAluno", cpfOnlyNumbers);
+      formData.append("matricula", matricula);
+      formData.append("nomeCurso", nomeCurso);
+      formData.append("universidadeId", universidadeId.toString());
+
+      if (Platform.OS === "web") {
+        formData.append(
+          "arquivo",
+          new File([pdfFile], pdfFile.name, { type: "application/pdf" })
+        );
+      } else {
+        formData.append("arquivo", {
+          uri: pdfFile.uri,
+          type: pdfFile.type || "application/pdf",
+          name: pdfFile.name || "certificado.pdf",
+        } as any);
+      }
+
+      const response = await api.post("/certificados/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+
+      Alert.alert("Sucesso", "Certificado registrado com sucesso!");
+      console.log("Certificado criado:", response.data);
+
+      // Limpa formulário
+      setNomeAluno("");
+      setCpfAluno("");
+      setMatricula("");
+      setNomeCurso("");
+      setPdfFile(null);
+    } catch (err: any) {
+      console.error(err);
+      Alert.alert("Erro", err.response?.data?.error || "Erro ao registrar certificado");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -150,15 +139,14 @@ const handleSubmit = async () => {
         maxLength={50}
       />
 
-<TextInput
-  style={styles.input}
-  placeholder="CPF do Aluno"
-  keyboardType="numeric"
-  value={cpfAluno}
-  onChangeText={(text) => setCpfAluno(formatCPF(text))}
-  maxLength={14}
-/>
-
+      <TextInput
+        style={styles.input}
+        placeholder="CPF do Aluno"
+        keyboardType="numeric"
+        value={cpfAluno}
+        onChangeText={(text) => setCpfAluno(formatCPF(text))}
+        maxLength={14}
+      />
 
       <TextInput
         style={styles.input}
@@ -178,7 +166,7 @@ const handleSubmit = async () => {
 
       <TouchableOpacity style={styles.uploadBtn} onPress={handleSelectPdf}>
         <Text style={styles.uploadText}>
-          {pdfFile ? (Platform.OS === "web" ? pdfFile.name : pdfFile.name) : "Selecionar PDF"}
+          {pdfFile ? pdfFile.name : "Selecionar PDF"}
         </Text>
       </TouchableOpacity>
 

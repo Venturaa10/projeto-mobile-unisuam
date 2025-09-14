@@ -7,8 +7,8 @@ export default (sequelize, DataTypes) => {
     dataEmissao: { type: DataTypes.DATE, allowNull: false },
     arquivo: { type: DataTypes.STRING, allowNull: true },
     publico: { type: DataTypes.BOOLEAN, defaultValue: false },
-  },
- {
+    universidadeId: { type: DataTypes.INTEGER, allowNull: false },
+  }, {
     hooks: {
       beforeCreate: (certificado) => {
         certificado.cpfAluno = certificado.cpfAluno.replace(/\D/g, "");
@@ -16,17 +16,15 @@ export default (sequelize, DataTypes) => {
       beforeUpdate: (certificado) => {
         certificado.cpfAluno = certificado.cpfAluno.replace(/\D/g, "");
       }
-}
-});
+    }
+  });
 
-  // Relação com universidade
-  // Certificado.associate = (models) => {
-  //   Certificado.belongsTo(models.Universidade, {
-  //     foreignKey: "universidadeId",
-  //     as: "universidade",
-  //   });
-  // };
-
+  Certificado.associate = (models) => {
+    Certificado.belongsTo(models.Universidade, {
+      foreignKey: "universidadeId",
+      as: "universidade",
+    });
+  };
 
   return Certificado;
 };
