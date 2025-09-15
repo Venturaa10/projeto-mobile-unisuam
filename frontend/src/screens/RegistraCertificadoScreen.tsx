@@ -10,11 +10,7 @@ import {
 } from "react-native";
 import api from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-let DocumentPicker: any = null;
-if (Platform.OS !== "web") {
-  DocumentPicker = require("react-native-document-picker");
-}
+import * as DocumentPicker from 'expo-document-picker';
 
 const RegistraCertificadoScreen: React.FC = () => {
   const [nomeAluno, setNomeAluno] = useState("");
@@ -34,25 +30,24 @@ const RegistraCertificadoScreen: React.FC = () => {
   };
 
   // Seleciona PDF
-  const handleSelectPdf = async () => {
-    if (Platform.OS === "web") {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = ".pdf";
-      input.onchange = (e: any) => {
-        const file = e.target.files[0];
-        if (file) setPdfFile(file);
-      };
-      input.click();
-    } else {
-      try {
-        const res = await DocumentPicker.pick({ type: [DocumentPicker.types.pdf] });
-        setPdfFile(res[0]);
-      } catch (err) {
-        if (!DocumentPicker.isCancel(err)) console.error(err);
-      }
-    }
-  };
+const handleSelectPdf = async () => {
+  if (Platform.OS === "web") {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".pdf";
+    input.onchange = (e: any) => {
+      const file = e.target.files[0];
+      if (file) setPdfFile(file);
+    };
+    input.click();
+  } else {
+    const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf' });
+    // if (result.type === 'success') {
+    //   setPdfFile(result); // resultado inteiro
+    // }
+  }
+};
+
 
   const handleSubmit = async () => {
     const nomeTrim = nomeAluno.trim();
@@ -81,7 +76,7 @@ const RegistraCertificadoScreen: React.FC = () => {
       const usuarioStr = await AsyncStorage.getItem("usuario");
       if (!usuarioStr) throw new Error("Usuário não encontrado");
       const usuario = JSON.parse(usuarioStr);
-      const universidadeId = usuario.universidadeId || usuario.id; // depende de como você armazenou
+      const universidadeId = usuario.universidadeId || usuario.id;
 
       const formData = new FormData();
       formData.append("nomeAluno", nomeTrim);
@@ -98,7 +93,7 @@ const RegistraCertificadoScreen: React.FC = () => {
       } else {
         formData.append("arquivo", {
           uri: pdfFile.uri,
-          type: pdfFile.type || "application/pdf",
+          type: pdfFile.mimeType || "application/pdf",
           name: pdfFile.name || "certificado.pdf",
         } as any);
       }
