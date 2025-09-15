@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "../services/api";
-import { FontAwesome } from "@expo/vector-icons"; // ou qualquer outra lib de ícones
-import { Linking, Platform } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import { Linking } from "react-native";
 
 interface Certificado {
   id: number;
@@ -28,6 +28,7 @@ interface Certificado {
 export default function MeusCertificadosScreen() {
   const [certificados, setCertificados] = useState<Certificado[]>([]);
   const [loading, setLoading] = useState(true);
+const BASE_URL = "http://1.0.11.21:3000";
 
   useEffect(() => {
     fetchCertificados();
@@ -118,12 +119,16 @@ const fetchCertificados = async () => {
           <Text style={styles.universidade}>CNPJ: {item.universidade.cnpj}</Text>
 
           {item.arquivo && (
-            <TouchableOpacity
-              style={styles.botao}
-              onPress={() => console.log("Abrir certificado:", item.arquivo)}
-            >
-              <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
-            </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.botao}
+          onPress={() => {
+            const fileUrl = `${BASE_URL}/${item.arquivo}`;
+            Linking.openURL(fileUrl);
+          }}
+        >
+          <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
+        </TouchableOpacity>
+
           )}
 
           {/* Ícone de visibilidade */}

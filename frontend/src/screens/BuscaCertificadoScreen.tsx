@@ -1,121 +1,100 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Navbar from "../components/Navbar";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, FlatList, Alert, Linking } from "react-native";
+import api from "../services/api";
+
+const BASE_URL = "http://1.0.11.21:3000"; // IP do backend
 
 const BuscaCertificadoScreen: React.FC = () => {
-  const [tipoBusca, setTipoBusca] = useState("cpf");
-  const [valor, setValor] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [certificados, setCertificados] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Limpar token e tipo sempre que entrar na tela
-  useEffect(() => {
-    const clearUserData = async () => {
-      await AsyncStorage.removeItem("token");
-      await AsyncStorage.removeItem("tipo");
-    };
-    clearUserData();
-  }, []);
+  const handleBuscar = async () => {
+    const cpfLimpo = cpf.replace(/\D/g, ""); // remove pontos e traço
+    if (!cpfLimpo) {
+      Alert.alert("Atenção", "Digite um CPF válido.");
+      return;
+    }
 
-  const handleBuscar = () => {
-    console.log(`Buscar por ${tipoBusca}: ${valor}`);
+    setLoading(true);
+
+    try {
+      const res = await api.get("/certificados");
+      const data = res.data;
+
+      // filtra apenas os certificados públicos com CPF correspondente
+      const filtrados = data.filter(
+        (cert: any) => cert.publico && cert.cpfAluno === cpfLimpo
+      );
+
+      if (filtrados.length === 0) {
+        Alert.alert("Nenhum certificado público encontrado");
+      }
+
+      setCertificados(filtrados);
+    } catch (err) {
+      console.error(err);
+      Alert.alert("Erro", "Não foi possível buscar certificados.");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const renderItem = ({ item }: any) => (
+    <View style={styles.card}>
+      <Text style={styles.curso}>{item.nomeCurso}</Text>
+      <Text>Aluno: {item.nomeAluno}</Text>
+      <Text>CPF: {item.cpfAluno}</Text>
+      <Text>Emitido em: {new Date(item.dataEmissao).toLocaleDateString("pt-BR")}</Text>
+
+      {item.arquivo && (
+        <TouchableOpacity
+          style={styles.botao}
+          onPress={() => Linking.openURL(`${BASE_URL}/${item.arquivo}`)}
+        >
+          <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Busca de Certificado</Text>
 
-      {/* Select */}
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={tipoBusca}
-          onValueChange={(itemValue) => setTipoBusca(itemValue)}
-          style={styles.picker}
-        >
-          <Picker.Item label="Buscar por CPF" value="cpf" />
-          <Picker.Item label="Buscar por ID do Aluno" value="idAluno" />
-          <Picker.Item label="Buscar por Instituição" value="instituicao" />
-        </Picker>
-      </View>
-
-      {/* Input */}
       <TextInput
         style={styles.input}
-        placeholder={
-          tipoBusca === "cpf"
-            ? "Digite o CPF"
-            : tipoBusca === "idAluno"
-            ? "Digite o ID do Aluno"
-            : "Digite o nome da Instituição"
-        }
-        value={valor}
-        maxLength={50}
-        onChangeText={setValor}
+        placeholder="Digite o CPF do Aluno"
+        value={cpf}
+        maxLength={14}
+        keyboardType="numeric"
+        onChangeText={setCpf}
       />
 
-      {/* Botão */}
       <TouchableOpacity style={styles.button} onPress={handleBuscar}>
         <Text style={styles.buttonText}>Buscar</Text>
       </TouchableOpacity>
+
+      <FlatList
+        data={certificados}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        style={{ width: "100%", marginTop: 20 }}
+      />
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-    backgroundColor: "#f9fafb",
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 30,
-    color: "#1f2937",
-    textAlign: "center",
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    marginBottom: 20,
-    width: "100%",
-    overflow: "hidden",
-  },
-  picker: {
-    height: 50,
-    width: "100%",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 20,
-    width: "100%",
-    backgroundColor: "#fff",
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: "#4f46e5",
-    paddingVertical: 14,
-    borderRadius: 8,
-    width: "100%",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 18,
-  },
+  container: { flexGrow: 1, padding: 20, backgroundColor: "#f9fafb" },
+  title: { fontSize: 26, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
+  input: { borderWidth: 1, borderColor: "#d1d5db", borderRadius: 8, padding: 12, marginBottom: 20, backgroundColor: "#fff", fontSize: 16 },
+  button: { backgroundColor: "#4f46e5", paddingVertical: 14, borderRadius: 8, alignItems: "center" },
+  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 18 },
+  card: { backgroundColor: "#fff", padding: 16, borderRadius: 8, marginBottom: 12 },
+  curso: { fontSize: 16, fontWeight: "bold" },
+  botao: { marginTop: 10, backgroundColor: "#4f46e5", padding: 10, borderRadius: 6, alignItems: "center" },
+  botaoTexto: { color: "#fff", fontWeight: "bold" },
 });
 
 export default BuscaCertificadoScreen;
