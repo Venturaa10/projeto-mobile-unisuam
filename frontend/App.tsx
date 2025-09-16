@@ -7,7 +7,7 @@ export default function App() {
     <>
       {/* Configuração global da barra de status */}
       <StatusBar
-        translucent={false}   
+        translucent
         backgroundColor="#ffffff" 
         barStyle="dark-content"   
       />

@@ -80,3 +80,58 @@ export const loginUniversidade = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Login com Google
+export const loginGoogle = async (req, res) => {
+  try {
+    const { firebaseUid, email, userType } = req.body;
+    if (!firebaseUid || !email || !userType) {
+      return res.status(400).json({ error: "Dados insuficientes" });
+    }
+
+    let usuario;
+
+    if (userType === "aluno") {
+      usuario = await Aluno.findOne({ where: { email } });
+      if (!usuario) {
+        // Cria novo aluno
+        usuario = await Aluno.create({
+          nome: "Aluno Google", // você pode adaptar se quiser pegar nome do Google
+          email,
+          cpf: null,
+          firebaseUid
+        });
+      }
+    } else if (userType === "universidade") {
+      usuario = await Universidade.findOne({ where: { email } });
+      if (!usuario) {
+        // Cria nova universidade
+        usuario = await Universidade.create({
+          nome: "Universidade Google",
+          email,
+          cnpj: null,
+          firebaseUid
+        });
+      }
+    } else {
+      return res.status(400).json({ error: "Tipo de usuário inválido" });
+    }
+
+    // Gera token JWT
+    const token = jwt.sign({ id: usuario.id, tipo: userType }, JWT_SECRET, { expiresIn: "1d" });
+
+    // Retorna dados
+    res.json({
+      token,
+      tipo: userType,
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        cpf_cnpj: userType === "aluno" ? usuario.cpf : usuario.cnpj
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

@@ -4,6 +4,7 @@ import { Op } from "sequelize";
 
 export default (sequelize, DataTypes) => {
   const Universidade = sequelize.define("Universidade", {
+    firebaseUid: { type: DataTypes.STRING, allowNull: true, unique: true },
     nome: { type: DataTypes.STRING, allowNull: false },
     cnpj: { type: DataTypes.STRING, allowNull: false, unique: true },
     email: { type: DataTypes.STRING, allowNull: false, unique: true },

@@ -12,4 +12,4 @@ Depois disso, você só precisa iniciar cada parte:
 
 Backend: npm run dev
 
-Frontend: npm start
+Frontend: npm start ou npx expo start -c  
