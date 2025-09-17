@@ -14,6 +14,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import Icon from "react-native-vector-icons/Ionicons";
 import { Image } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface NavbarProps {
   onLogout?: () => void;
@@ -136,7 +137,7 @@ if (tipo === "universidade") {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header com nome do app e hamburger */}
 <View style={styles.headerRow}>
   <TouchableOpacity
@@ -182,7 +183,7 @@ if (tipo === "universidade") {
           </View>
         </TouchableWithoutFeedback>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
