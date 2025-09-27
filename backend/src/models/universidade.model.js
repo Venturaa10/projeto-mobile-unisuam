@@ -4,33 +4,36 @@ import { Op } from "sequelize";
 
 export default (sequelize, DataTypes) => {
   const Universidade = sequelize.define("Universidade", {
-    firebaseUid: { type: DataTypes.STRING, allowNull: true, unique: true },
-    nome: { type: DataTypes.STRING, allowNull: false },
-    cnpj: { type: DataTypes.STRING, allowNull: false, unique: true },
-    email: { type: DataTypes.STRING, allowNull: false, unique: true },
-    senha: { type: DataTypes.STRING, allowNull: false },
-    logo: { type: DataTypes.STRING, allowNull: true },
+  firebaseUid: { type: DataTypes.STRING, allowNull: true, unique: true },
+  nome: { type: DataTypes.STRING, allowNull: false },
+  cnpj: { type: DataTypes.STRING, allowNull: true, unique: true },  
+  email: { type: DataTypes.STRING, allowNull: false, unique: true },
+  senha: { type: DataTypes.STRING, allowNull: true },           
+  logo: { type: DataTypes.STRING, allowNull: true },
   }, {
     hooks: {
       beforeCreate: async (uni) => {
-        // Remove pontuação do CNPJ
-        uni.cnpj = uni.cnpj.replace(/\D/g, "");
+  // Remove pontuação do CNPJ só se existir
+  if (uni.cnpj) {
+    uni.cnpj = uni.cnpj.replace(/\D/g, "");
 
-        // Valida tamanho do CNPJ
-        if (uni.cnpj.length !== 14) {
-          throw new Error("CNPJ deve ter exatamente 14 dígitos");
-        }
+    if (uni.cnpj.length !== 14) {
+      throw new Error("CNPJ deve ter exatamente 14 dígitos");
+    }
 
-        // Hash da senha
-        uni.senha = await bcrypt.hash(uni.senha, 10);
+    // Valida CNPJ único
+    const cnpjExistente = await Universidade.findOne({ where: { cnpj: uni.cnpj } });
+    if (cnpjExistente) throw new Error("CNPJ já cadastrado");
+  }
 
-        // Valida CNPJ único
-        const cnpjExistente = await Universidade.findOne({ where: { cnpj: uni.cnpj } });
-        if (cnpjExistente) throw new Error("CNPJ já cadastrado");
+  // Hash da senha só se existir
+  if (uni.senha) {
+    uni.senha = await bcrypt.hash(uni.senha, 10);
+  }
 
-        // Valida email único
-        const emailExistente = await Universidade.findOne({ where: { email: uni.email } });
-        if (emailExistente) throw new Error("Email já cadastrado");
+  // Valida email único
+  const emailExistente = await Universidade.findOne({ where: { email: uni.email } });
+  if (emailExistente) throw new Error("Email já cadastrado");
       },
       beforeUpdate: async (uni) => {
         uni.cnpj = uni.cnpj.replace(/\D/g, "");

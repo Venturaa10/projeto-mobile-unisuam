@@ -6,32 +6,35 @@ export default (sequelize, DataTypes) => {
   const Aluno = sequelize.define("Aluno", {
     firebaseUid: { type: DataTypes.STRING, allowNull: true, unique: true },
     nome: { type: DataTypes.STRING, allowNull: false },
-    cpf: { type: DataTypes.STRING, allowNull: false, unique: true },
+    cpf: { type: DataTypes.STRING, allowNull: true, unique: true }, 
     email: { type: DataTypes.STRING, allowNull: false, unique: true },
-    senha: { type: DataTypes.STRING, allowNull: false },
+    senha: { type: DataTypes.STRING, allowNull: true },              
     imagemPerfil: { type: DataTypes.STRING, allowNull: true },
   }, {
     hooks: {
       // Antes de criar um novo aluno
       beforeCreate: async (aluno) => {
-        // Remove pontuação do CPF
-        aluno.cpf = aluno.cpf.replace(/\D/g, "");
+        // Remove pontuação do CPF só se existir
+  if (aluno.cpf) {
+    aluno.cpf = aluno.cpf.replace(/\D/g, "");
 
-        // Hash da senha
-        aluno.senha = await bcrypt.hash(aluno.senha, 10);
+    if (aluno.cpf.length !== 11) {
+      throw new Error("CPF deve ter exatamente 11 dígitos");
+    }
 
-        // Valida CPF único e tamanho
-        if (aluno.cpf.length !== 11) {
-          throw new Error("CPF deve ter exatamente 11 dígitos");
-        }
+    // Valida CPF único
+    const cpfExistente = await Aluno.findOne({ where: { cpf: aluno.cpf } });
+    if (cpfExistente) throw new Error("CPF já cadastrado");
+  }
 
-        // Valida CPF único
-        const cpfExistente = await Aluno.findOne({ where: { cpf: aluno.cpf } });
-        if (cpfExistente) throw new Error("CPF já cadastrado");
+  // Hash da senha só se existir
+  if (aluno.senha) {
+    aluno.senha = await bcrypt.hash(aluno.senha, 10);
+  }
 
-        // Valida email único
-        const emailExistente = await Aluno.findOne({ where: { email: aluno.email } });
-        if (emailExistente) throw new Error("Email já cadastrado");
+  // Valida email único
+  const emailExistente = await Aluno.findOne({ where: { email: aluno.email } });
+  if (emailExistente) throw new Error("Email já cadastrado");
       },
 
 beforeUpdate: async (aluno) => {

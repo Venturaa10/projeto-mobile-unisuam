@@ -37,6 +37,8 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
+/frontend/android/
+
 # Android
 *.apk
 *.ap_
