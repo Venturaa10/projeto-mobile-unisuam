@@ -8,13 +8,9 @@ import {
   Alert,
   Platform,
 } from "react-native";
+import * as DocumentPicker from "expo-document-picker";
 import api from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-let DocumentPicker: any = null;
-if (Platform.OS !== "web") {
-  DocumentPicker = require("react-native-document-picker");
-}
 
 const RegistraCertificadoScreen: React.FC = () => {
   const [nomeAluno, setNomeAluno] = useState("");
@@ -46,10 +42,22 @@ const RegistraCertificadoScreen: React.FC = () => {
       input.click();
     } else {
       try {
-        const res = await DocumentPicker.pick({ type: [DocumentPicker.types.pdf] });
-        setPdfFile(res[0]);
+        const result = await DocumentPicker.getDocumentAsync({
+          type: "application/pdf",
+          copyToCacheDirectory: true,
+          multiple: false,
+        });
+
+        if (result.canceled) {
+          console.log("Seleção de documento cancelada");
+          return;
+        }
+
+        const file = result.assets[0];
+        setPdfFile(file);
       } catch (err) {
-        if (!DocumentPicker.isCancel(err)) console.error(err);
+        console.error("Erro ao selecionar PDF:", err);
+        Alert.alert("Erro", "Não foi possível selecionar o PDF.");
       }
     }
   };
@@ -81,7 +89,7 @@ const RegistraCertificadoScreen: React.FC = () => {
       const usuarioStr = await AsyncStorage.getItem("usuario");
       if (!usuarioStr) throw new Error("Usuário não encontrado");
       const usuario = JSON.parse(usuarioStr);
-      const universidadeId = usuario.universidadeId || usuario.id; // depende de como você armazenou
+      const universidadeId = usuario.universidadeId || usuario.id;
 
       const formData = new FormData();
       formData.append("nomeAluno", nomeTrim);
@@ -98,7 +106,7 @@ const RegistraCertificadoScreen: React.FC = () => {
       } else {
         formData.append("arquivo", {
           uri: pdfFile.uri,
-          type: pdfFile.type || "application/pdf",
+          type: pdfFile.mimeType || "application/pdf",
           name: pdfFile.name || "certificado.pdf",
         } as any);
       }
