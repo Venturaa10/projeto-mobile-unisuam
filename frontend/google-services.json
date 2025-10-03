@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "107152281365",
+    "project_id": "projeto-unisuam-android",
+    "storage_bucket": "projeto-unisuam-android.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107152281365:android:ef8a431b0d83f03d69a31c",
+        "android_client_info": {
+          "package_name": "com.frontend.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6Q_HLfxbj-y88T8Nli11DjAGOGiEGl-M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

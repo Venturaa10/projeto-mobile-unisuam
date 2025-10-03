@@ -5,6 +5,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import * as WebBrowser from "expo-web-browser";
+import * as Google from "expo-auth-session/providers/google";
+import { auth } from "../firebase"; // seu firebase.ts
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Login">;
 type UserType = "aluno" | "universidade";
@@ -16,19 +21,29 @@ const LoginScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation<LoginScreenNavigationProp>();
 
-  // Limpar tokens e redirecionar se já logado
-  useEffect(() => {
-    const init = async () => {
-      await AsyncStorage.removeItem("token");
-      await AsyncStorage.removeItem("tipo");
+WebBrowser.maybeCompleteAuthSession();
 
-      const existingToken = await AsyncStorage.getItem("token");
-      if (existingToken) {
-        navigation.replace("Home"); // redireciona sem permitir voltar
-      }
-    };
-    init();
-  }, []);
+const [googleRequest, googleResponse, promptGoogleLogin] = Google.useAuthRequest({
+  androidClientId: "88043054481-tg2g95io9ogndjc7gk7b3jt6rtjakcdm.apps.googleusercontent.com", // coloque aqui
+});
+
+useEffect(() => {
+  if (googleResponse?.type === "success") {
+    const { idToken } = googleResponse.authentication!;
+    if (idToken) {
+      const credential = GoogleAuthProvider.credential(idToken);
+      signInWithCredential(auth, credential)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          // Aqui você pode salvar no AsyncStorage e navegar para Home
+          AsyncStorage.setItem("token", user.uid); // ou outro identificador
+          AsyncStorage.setItem("usuario", JSON.stringify(user));
+          navigation.replace("Home");
+        })
+        .catch((err) => console.error(err));
+    }
+  }
+}, [googleResponse]);
 
 const handleLogin = async () => {
   if (!login || !senha) {
@@ -80,6 +95,14 @@ const handleLogin = async () => {
           <Text style={userType === "universidade" ? styles.selectedText : styles.optionText}>Universidade</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity
+  style={[styles.button, { backgroundColor: "#DB4437" }]}
+  onPress={() => promptGoogleLogin()}
+>
+  <Text style={styles.buttonText}>Login com Google</Text>
+</TouchableOpacity>
+
 
       <TextInput
         style={styles.input}
