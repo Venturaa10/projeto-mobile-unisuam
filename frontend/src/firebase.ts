@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
-const app = initializeApp({}); // vazio, o EAS usa o google-services.json
+// Para Android + Expo EAS Build, não precisa colocar firebaseConfig
+const app = initializeApp({});
 export const auth = getAuth(app);
