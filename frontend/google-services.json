@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "659201367256",
+    "project_id": "projeto-mobile-unisuam-473100",
+    "storage_bucket": "projeto-mobile-unisuam-473100.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659201367256:android:7ba9f66e451d20b816cbad",
+        "android_client_info": {
+          "package_name": "com.ventura.projetomobileunisuam"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659201367256-umeubma7mdped9p69tqfjlcid63k143g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ventura.projetomobileunisuam",
+            "certificate_hash": "34984f4bc7fd0b81d214103156c337cc72d6e476"
+          }
+        },
+        {
+          "client_id": "659201367256-do7d5mmjke7aam9e40f8llol53na8ng7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlRlBIqz69b79KLy-RhmL9zjkhX5NiNJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659201367256-do7d5mmjke7aam9e40f8llol53na8ng7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
