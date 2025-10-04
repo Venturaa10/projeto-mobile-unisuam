@@ -65,11 +65,16 @@ const CadastroScreen: React.FC = () => {
       );
 
       navigation.replace("Login"); // Redireciona para login
-    } catch (err: any) {
-      Alert.alert("Erro", err.response?.data?.error || "Erro ao cadastrar");
-    } finally {
-      setLoading(false);
-    }
+      } catch (err: any) {
+        console.log("ERRO AO CADASTRAR ===>", JSON.stringify(err, null, 2));
+        Alert.alert(
+          "Erro",
+          err.response?.data?.error || err.message || "Erro ao cadastrar"
+        );
+      } finally {
+        setLoading(false);
+      }
+
   };
 
   const getButtonText = () => {
