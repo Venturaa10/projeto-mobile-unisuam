@@ -10,7 +10,7 @@
 
 Depois disso, você só precisa iniciar cada parte:
 
-Backend: npm run dev
+Backend: npm run dev ou npx nodemon server.js
 
 Frontend: npm start
 

@@ -1,25 +1,26 @@
-import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HomeScreen: React.FC = () => {
   const [usuario, setUsuario] = useState<any>(null);
 
-  useEffect(() => {
-    const carregarUsuario = async () => {
-      try {
-        const usuarioStr = await AsyncStorage.getItem("usuario");
-        if (usuarioStr) {
-          setUsuario(JSON.parse(usuarioStr));
-          console.log(usuarioStr)
+  useFocusEffect(
+    useCallback(() => {
+      const carregarUsuario = async () => {
+        try {
+          const usuarioStr = await AsyncStorage.getItem("usuario");
+          if (usuarioStr) {
+            setUsuario(JSON.parse(usuarioStr));
+          }
+        } catch (err) {
+          console.log("Erro ao carregar usuário:", err);
         }
-      } catch (err) {
-        console.log("Erro ao carregar usuário:", err);
-      }
-    };
-
-    carregarUsuario();
-  }, []);
+      };
+      carregarUsuario();
+    }, [])
+  );
 
   if (!usuario) {
     return (
@@ -33,7 +34,9 @@ const HomeScreen: React.FC = () => {
     <View style={styles.container}>
       <Text style={styles.titulo}>Bem-vindo, {usuario.nome} 👋</Text>
       <Text>Email: {usuario.email}</Text>
-      <Text>{usuario.cpf_cnpj?.length === 11 ? "CPF" : "CNPJ"}: {usuario.cpf_cnpj}</Text>
+      <Text>
+        {usuario.cpf_cnpj?.length === 11 ? "CPF" : "CNPJ"}: {usuario.cpf_cnpj}
+      </Text>
     </View>
   );
 };

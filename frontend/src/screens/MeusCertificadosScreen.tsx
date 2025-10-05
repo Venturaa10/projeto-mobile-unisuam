@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -7,80 +8,66 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Alert,
+  Linking,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "../services/api";
 import { FontAwesome } from "@expo/vector-icons";
-import { Linking } from "react-native";
-
-interface Certificado {
-  id: number;
-  nomeCurso: string;
-  dataEmissao: string;
-  arquivo: string | null;
-  publico: boolean;
-  universidade: {
-    nome: string;
-    cnpj: string;
-  };
-}
 
 export default function MeusCertificadosScreen() {
-  const [certificados, setCertificados] = useState<Certificado[]>([]);
+  const [certificados, setCertificados] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const BASE_URL = "http://192.168.1.74:3000";
 // const BASE_URL = "http://1.0.11.21:3000"; // Ip do backend no mac no trabalho
-const BASE_URL = "http://192.168.1.74:3000"; // Ip do backend no windows em casa
 
+  const fetchCertificados = async () => {
+    try {
+      // Sempre pega o usuário atualizado do AsyncStorage
+      const usuarioStr = await AsyncStorage.getItem("usuario");
+      if (!usuarioStr) return;
+      const usuario = JSON.parse(usuarioStr);
 
-  useEffect(() => {
-    fetchCertificados();
-  }, []);
+      const documento = usuario.cpf_cnpj?.replace(/\D/g, "");
+      if (!documento) return;
 
-const fetchCertificados = async () => {
-  try {
-    const usuario = await AsyncStorage.getItem("usuario");
-    if (!usuario) return;
+      const certificadosRes = await api.get(`/certificados/aluno/${documento}`);
+      const certificadosData = certificadosRes.data;
 
-    const parsedUser = JSON.parse(usuario);
-    const documento = parsedUser.cpf_cnpj?.replace(/\D/g, "");
-    if (!documento) return;
+      const universidadesRes = await api.get(`/universidades`);
+      const universidadesData = universidadesRes.data;
 
-    // Pega os certificados
-    const certificadosRes = await api.get(`/certificados/aluno/${documento}`);
-    const certificadosData = certificadosRes.data;
+      const certificadosComCnpj = certificadosData.map((cert: any) => {
+        const uni = universidadesData.find((u: any) => u.id === cert.universidadeId);
+        return {
+          ...cert,
+          universidade: {
+            nome: uni?.nome || "Desconhecida",
+            cnpj: uni?.cnpj || "N/A",
+          },
+        };
+      });
 
-    // Pega todas universidades
-    const universidadesRes = await api.get(`/universidades`);
-    const universidadesData = universidadesRes.data;
+      setCertificados(certificadosComCnpj);
+    } catch (err) {
+      console.error("Erro ao buscar certificados:", err);
+      Alert.alert("Erro", "Não foi possível carregar os certificados.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Adiciona o CNPJ correto em cada certificado
-    const certificadosComCnpj = certificadosData.map((cert: any) => {
-      const uni = universidadesData.find((u: any) => u.id === cert.universidadeId);
-      return {
-        ...cert,
-        universidade: {
-          nome: uni?.nome || "Desconhecida",
-          cnpj: uni?.cnpj || "N/A",
-        },
-      };
-    });
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true); // garante loading ao entrar na tela
+      fetchCertificados();
+    }, [])
+  );
 
-    setCertificados(certificadosComCnpj);
-  } catch (err) {
-    console.error("Erro ao buscar certificados:", err);
-    Alert.alert("Erro", "Não foi possível carregar os certificados.");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  const togglePrivacidade = async (certificado: Certificado) => {
+  const togglePrivacidade = async (certificado: any) => {
     try {
       const response = await api.patch(`/certificados/${certificado.id}/privacidade`, {
         publico: !certificado.publico,
       });
-      // Atualiza o estado local
       setCertificados((prev) =>
         prev.map((c) => (c.id === certificado.id ? { ...c, publico: response.data.publico } : c))
       );
@@ -121,19 +108,14 @@ const fetchCertificados = async () => {
           <Text style={styles.universidade}>CNPJ: {item.universidade.cnpj}</Text>
 
           {item.arquivo && (
-        <TouchableOpacity
-          style={styles.botao}
-          onPress={() => {
-            const fileUrl = `${BASE_URL}/${item.arquivo}`;
-            Linking.openURL(fileUrl);
-          }}
-        >
-          <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
-        </TouchableOpacity>
-
+            <TouchableOpacity
+              style={styles.botao}
+              onPress={() => Linking.openURL(`${BASE_URL}/${item.arquivo}`)}
+            >
+              <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
+            </TouchableOpacity>
           )}
 
-          {/* Ícone de visibilidade */}
           <TouchableOpacity
             style={styles.visibilityBtn}
             onPress={() => togglePrivacidade(item)}
@@ -143,9 +125,7 @@ const fetchCertificados = async () => {
               size={20}
               color={item.publico ? "#4f46e5" : "#999"}
             />
-            <Text style={styles.visibilityText}>
-              {item.publico ? "Público" : "Privado"}
-            </Text>
+            <Text style={styles.visibilityText}>{item.publico ? "Público" : "Privado"}</Text>
           </TouchableOpacity>
         </View>
       )}

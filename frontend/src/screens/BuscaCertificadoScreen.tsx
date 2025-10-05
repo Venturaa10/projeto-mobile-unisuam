@@ -61,29 +61,32 @@ const BuscaCertificadoScreen: React.FC = () => {
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Busca de Certificado</Text>
+<View style={styles.container}>
+  <Text style={styles.title}>Busca de Certificado</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Digite o CPF do Aluno"
-        value={cpf}
-        maxLength={14}
-        keyboardType="numeric"
-        onChangeText={setCpf}
-      />
+  <TextInput
+    style={styles.input}
+    placeholder="Digite o CPF do Aluno"
+    value={cpf}
+    maxLength={11}
+    keyboardType="numeric"
+    onChangeText={setCpf}
+  />
 
-      <TouchableOpacity style={styles.button} onPress={handleBuscar}>
-        <Text style={styles.buttonText}>Buscar</Text>
-      </TouchableOpacity>
+  <TouchableOpacity style={styles.button} onPress={handleBuscar}>
+    <Text style={styles.buttonText}>Buscar</Text>
+  </TouchableOpacity>
 
-      <FlatList
-        data={certificados}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        style={{ width: "100%", marginTop: 20 }}
-      />
-    </ScrollView>
+  <FlatList
+    data={certificados}
+    keyExtractor={(item) => item.id.toString()}
+    renderItem={renderItem}
+    style={{ width: "100%", marginTop: 20 }}
+    contentContainerStyle={{ paddingBottom: 20 }}
+    showsVerticalScrollIndicator={false}
+  />
+</View>
+
   );
 };
 

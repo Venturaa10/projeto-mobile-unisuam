@@ -80,9 +80,21 @@ const handleAtualizar = async () => {
     if (userType === "aluno") setCpfCnpj(updatedUser.cpf || "");
     else setCpfCnpj(updatedUser.cnpj || "");
 
-    // Atualiza AsyncStorage usando as chaves que a HomeScreen espera
-    await AsyncStorage.setItem("usuario", JSON.stringify(updatedUser));
-    await AsyncStorage.setItem("tipo", userType);
+    // Atualiza AsyncStorage preservando o token e outros campos
+    const storedUser = await AsyncStorage.getItem("usuario");
+    const token = await AsyncStorage.getItem("token"); // mantém o token salvo
+
+    if (storedUser) {
+      const oldUser = JSON.parse(storedUser);
+      const mergedUser = { ...oldUser, ...updatedUser }; // preserva campos antigos
+      await AsyncStorage.setItem("usuario", JSON.stringify(mergedUser));
+    } else {
+      await AsyncStorage.setItem("usuario", JSON.stringify(updatedUser));
+    }
+
+await AsyncStorage.setItem("tipo", userType);
+if (token) await AsyncStorage.setItem("token", token); // regrava só pra garantir
+
 
     // Mostra snackbar simples
     Alert.alert("Sucesso", "Perfil atualizado!", [
