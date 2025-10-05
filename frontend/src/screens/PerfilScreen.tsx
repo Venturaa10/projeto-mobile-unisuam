@@ -138,18 +138,6 @@ if (token) await AsyncStorage.setItem("token", token); // regrava só pra garant
         maxLength={50}
       />
 
-      {/* CPF/CNPJ */}
-      <TextInput
-        style={styles.input}
-        value={cpfCnpj}
-        onChangeText={text => {
-          const max = userType === "aluno" ? 11 : 14;
-          if (text.length <= max) setCpfCnpj(text);
-        }}
-        placeholder={userType === "aluno" ? "CPF" : "CNPJ"}
-        keyboardType="numeric"
-      />
-
       {/* Email */}
       <TextInput
         style={styles.input}
@@ -159,6 +147,26 @@ if (token) await AsyncStorage.setItem("token", token); // regrava só pra garant
         keyboardType="email-address"
         maxLength={50}
       />
+
+{/* CPF/CNPJ */}
+{userType === "universidade" ? (
+  <TextInput
+    style={styles.input}
+    value={cpfCnpj}
+    onChangeText={text => {
+      const max = 14; // CNPJ sempre 14 dígitos
+      if (text.length <= max) setCpfCnpj(text);
+    }}
+    placeholder="CNPJ"
+    keyboardType="numeric"
+  />
+) : (
+  // Aluno: CPF é somente leitura
+  <Text style={[styles.input, { backgroundColor: "#f0f0f0" }]}>
+    CPF: {cpfCnpj}
+  </Text>
+)}
+
 
       <TouchableOpacity style={styles.button} onPress={handleAtualizar} disabled={loading}>
         <Text style={styles.buttonText}>{loading ? "Atualizando..." : "Atualizar Perfil"}</Text>
