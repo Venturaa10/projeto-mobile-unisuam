@@ -83,3 +83,18 @@ export const atualizarSenhaUniversidade = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Excluir universidade
+export const excluirUniversidade = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const universidade = await Universidade.findByPk(id);
+    if (!universidade) return res.status(404).json({ error: "Universidade não encontrada" });
+
+    await universidade.destroy();
+    res.json({ message: "Universidade excluída com sucesso" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+

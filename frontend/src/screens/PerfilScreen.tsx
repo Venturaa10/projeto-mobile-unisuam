@@ -36,24 +36,70 @@ const PerfilScreen: React.FC<PerfilScreenProps> = ({ route }) => {
   const [cpfCnpj, setCpfCnpj] = useState("");
   const [email, setEmail] = useState("");
   const [foto, setFoto] = useState<string | undefined>(undefined);
+const [userTypeStored, setUserTypeStored] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const endpoint = userType === "aluno" ? `/alunos/${userId}` : `/universidades/${userId}`;
-        const response = await api.get(endpoint);
-        setUser(response.data);
-        setNome(response.data.nome);
-        setEmail(response.data.email);
-        setCpfCnpj(userType === "aluno" ? response.data.cpf : response.data.cnpj);
-        setFoto(userType === "aluno" ? response.data.imagemPerfil : response.data.logo);
-      } catch (err: any) {
-        Alert.alert("Erro", "Não foi possível carregar os dados do perfil.");
-      }
-    };
-    fetchUser();
-  }, [userType, userId]);
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      // Busca os dados do usuário
+      const endpoint = userType === "aluno" ? `/alunos/${userId}` : `/universidades/${userId}`;
+      const response = await api.get(endpoint);
+      setUser(response.data);
+      setNome(response.data.nome);
+      setEmail(response.data.email);
+      setCpfCnpj(userType === "aluno" ? response.data.cpf : response.data.cnpj);
+      setFoto(userType === "aluno" ? response.data.imagemPerfil : response.data.logo);
+
+      // Busca o tipo de perfil armazenado
+      const tipo = await AsyncStorage.getItem("tipo");
+      setUserTypeStored(tipo);
+    } catch (err: any) {
+      Alert.alert("Erro", "Não foi possível carregar os dados do perfil.");
+    }
+  };
+  fetchUser();
+}, [userType, userId]);
   
+
+const handleExcluirConta = () => {
+  Alert.alert(
+    "Confirmação",
+    "Você realmente deseja excluir sua conta? Essa ação não pode ser desfeita.",
+    [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Excluir",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const endpoint =
+              userType === "aluno"
+                ? `/alunos/${userId}`
+                : `/universidades/${userId}`;
+
+            await api.delete(endpoint);
+
+            // Limpa AsyncStorage
+            await AsyncStorage.clear();
+
+            Alert.alert("Sucesso", "Conta excluída com sucesso!");
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Login" }],
+            });
+          } catch (err: any) {
+            console.error("Erro ao excluir conta:", err.response?.data || err.message);
+            Alert.alert(
+              "Erro",
+              err.response?.data?.error || "Não foi possível excluir a conta."
+            );
+          }
+        },
+      },
+    ]
+  );
+};
+
   // Dentro do handleAtualizar
 const handleAtualizar = async () => {
   setLoading(true);
@@ -128,6 +174,13 @@ if (token) await AsyncStorage.setItem("token", token); // regrava só pra garant
           style={styles.foto}
         />
       </TouchableOpacity>
+      {/* Tipo de Perfil */}
+    {userTypeStored && (
+      <Text style={styles.tipoPerfil}>
+        {userTypeStored === "aluno" ? "Aluno" : "Universidade"}
+      </Text>
+    )}
+
 
       {/* Nome */}
       <TextInput
@@ -171,6 +224,14 @@ if (token) await AsyncStorage.setItem("token", token); // regrava só pra garant
       <TouchableOpacity style={styles.button} onPress={handleAtualizar} disabled={loading}>
         <Text style={styles.buttonText}>{loading ? "Atualizando..." : "Atualizar Perfil"}</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+  style={[styles.button, { backgroundColor: "#e53935", marginTop: 20 }]}
+  onPress={handleExcluirConta}
+>
+  <Text style={styles.buttonText}>Excluir Conta</Text>
+</TouchableOpacity>
+
     </ScrollView>
   );
 };
@@ -183,6 +244,13 @@ const styles = StyleSheet.create({
   buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
   foto: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
   link: { color: "#4f46e5", fontWeight: "bold", textAlign: "center", marginBottom: 20 },
+  tipoPerfil: {
+  fontSize: 16,
+  fontStyle: "italic",
+  color: "#555",
+  marginBottom: 15,
+}
+
 });
 
 export default PerfilScreen;

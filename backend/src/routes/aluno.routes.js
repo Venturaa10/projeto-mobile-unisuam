@@ -1,6 +1,6 @@
 import express from "express";
 import upload from "../middlewares/upload.js";
-import { criarAluno, listarAlunos, buscarAlunoPorId, atualizarAluno, atualizarSenhaAluno } from "../controllers/aluno.controller.js";
+import { criarAluno, listarAlunos, buscarAlunoPorId, atualizarAluno, atualizarSenhaAluno, excluirAluno } from "../controllers/aluno.controller.js";
 
 const router = express.Router();
 
@@ -18,6 +18,8 @@ router.put("/atualizarCampos/:id", atualizarAluno);
 // router.patch("/:id", atualizarAluno);
 
 router.put("/senha/:id", atualizarSenhaAluno);
+
+router.delete("/:id", excluirAluno);
 
 // Atualizar aluno
 router.patch("/atualizarImagem/:id", upload.single("imagemPerfil"), async (req, res) => {
