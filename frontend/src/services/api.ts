@@ -12,7 +12,7 @@ export interface LoginResponse {
 }
 
 // Para testar na web na propria maquina
-// Cria instância do Axios
+// // Cria instância do Axios
 // const api = axios.create({
 //   baseURL: "http://localhost:3000/api",
 //   headers: {
@@ -20,11 +20,20 @@ export interface LoginResponse {
 //   },
 // });
 
+// const api = axios.create({
+//   baseURL: "http://192.168.1.74:3000/api", // IP na rede local no windows em casa
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
+
+
 const api = axios.create({
-  baseURL: "http://192.168.1.74:3000/api", // IP na rede local no windows em casa
+  baseURL: "http://1.0.11.21:3000/api", // IP na rede local no mac no trabalho
   headers: {
     "Content-Type": "application/json",
   },
 });
+
 
 export default api;
