@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, FlatList, Alert, Linking } from "react-native";
 import api from "../services/api";
 
-const BASE_URL = "http://1.0.11.21:3000"; // Ip do backend no mac no trabalho
+// const BASE_URL = "http://1.0.11.21:3000"; // Ip do backend no mac no trabalho
 // const BASE_URL = "http://192.168.1.74:3000";
+const BASE_URL = "https://projeto-mobile-unisuam.onrender.com";
 
 
 const BuscaCertificadoScreen: React.FC = () => {

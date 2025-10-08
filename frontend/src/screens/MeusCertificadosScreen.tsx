@@ -18,7 +18,8 @@ export default function MeusCertificadosScreen() {
   const [certificados, setCertificados] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   // const BASE_URL = "http://192.168.1.74:3000";
-const BASE_URL = "http://1.0.11.21:3000"; // Ip do backend no mac no trabalho
+// const BASE_URL = "http://1.0.11.21:3000"; // Ip do backend no mac no trabalho
+const BASE_URL = "https://projeto-mobile-unisuam.onrender.com";
 
   const fetchCertificados = async () => {
     try {

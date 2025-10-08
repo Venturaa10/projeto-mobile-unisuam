@@ -13,7 +13,8 @@ const app = express();
 
 // Configuração CORS
 app.use(cors({
-  origin: "http://localhost:8081", // endereço do frontend
+  // origin: "http://localhost:8081", // endereço do frontend
+  origin: "*", // ou o domínio do seu frontend se já tiver hospedado
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 }));

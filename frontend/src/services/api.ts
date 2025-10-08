@@ -28,12 +28,17 @@ export interface LoginResponse {
 // });
 
 
-const api = axios.create({
-  baseURL: "http://1.0.11.21:3000/api", // IP na rede local no mac no trabalho
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+// const api = axios.create({
+//   baseURL: "http://1.0.11.21:3000/api", // IP na rede local no mac no trabalho
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
 
+
+const api = axios.create({
+  baseURL: "https://projeto-mobile-unisuam.onrender.com/api",
+  headers: { "Content-Type": "application/json" },
+});
 
 export default api;
