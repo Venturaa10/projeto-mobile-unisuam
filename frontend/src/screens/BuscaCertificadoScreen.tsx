@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, FlatList, Alert, Linking } from "react-native";
+import { Text, Alert, FlatList, Linking } from "react-native";
+import styled from "styled-components/native";
 import api from "../services/api";
 
-// const BASE_URL = "http://1.0.11.21:3000"; // IP do backend
 const BASE_URL = "http://192.168.1.74:3000";
-
 
 const BuscaCertificadoScreen: React.FC = () => {
   const [cpf, setCpf] = useState("");
@@ -24,7 +23,6 @@ const BuscaCertificadoScreen: React.FC = () => {
       const res = await api.get("/certificados");
       const data = res.data;
 
-      // filtra apenas os certificados públicos com CPF correspondente
       const filtrados = data.filter(
         (cert: any) => cert.publico && cert.cpfAluno === cpfLimpo
       );
@@ -43,63 +41,112 @@ const BuscaCertificadoScreen: React.FC = () => {
   };
 
   const renderItem = ({ item }: any) => (
-    <View style={styles.card}>
-      <Text style={styles.curso}>{item.nomeCurso}</Text>
+    <Card>
+      <Curso>{item.nomeCurso}</Curso>
       <Text>Aluno: {item.nomeAluno}</Text>
       <Text>CPF: {item.cpfAluno}</Text>
       <Text>Emitido em: {new Date(item.dataEmissao).toLocaleDateString("pt-BR")}</Text>
 
       {item.arquivo && (
-        <TouchableOpacity
-          style={styles.botao}
-          onPress={() => Linking.openURL(`${BASE_URL}/${item.arquivo}`)}
-        >
-          <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
-        </TouchableOpacity>
+        <Botao onPress={() => Linking.openURL(`${BASE_URL}/${item.arquivo}`)}>
+          <BotaoTexto>📄 Ver Certificado</BotaoTexto>
+        </Botao>
       )}
-    </View>
+    </Card>
   );
 
   return (
-<View style={styles.container}>
-  <Text style={styles.title}>Busca de Certificado</Text>
+    <Container>
+      <Title>Busca de Certificado</Title>
 
-  <TextInput
-    style={styles.input}
-    placeholder="Digite o CPF do Aluno"
-    value={cpf}
-    maxLength={11}
-    keyboardType="numeric"
-    onChangeText={setCpf}
-  />
+      <Input
+        placeholder="Digite o CPF do Aluno"
+        value={cpf}
+        maxLength={11}
+        keyboardType="numeric"
+        onChangeText={setCpf}
+      />
 
-  <TouchableOpacity style={styles.button} onPress={handleBuscar}>
-    <Text style={styles.buttonText}>Buscar</Text>
-  </TouchableOpacity>
+      <Button onPress={handleBuscar} disabled={loading}>
+        <ButtonText>{loading ? "Buscando..." : "Buscar"}</ButtonText>
+      </Button>
 
-  <FlatList
-    data={certificados}
-    keyExtractor={(item) => item.id.toString()}
-    renderItem={renderItem}
-    style={{ width: "100%", marginTop: 20 }}
-    contentContainerStyle={{ paddingBottom: 20 }}
-    showsVerticalScrollIndicator={false}
-  />
-</View>
-
+      <FlatList
+        data={certificados}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        style={{ width: "100%", marginTop: 20 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+      />
+    </Container>
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flexGrow: 1, padding: 20, backgroundColor: "#f9fafb" },
-  title: { fontSize: 26, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
-  input: { borderWidth: 1, borderColor: "#d1d5db", borderRadius: 8, padding: 12, marginBottom: 20, backgroundColor: "#fff", fontSize: 16 },
-  button: { backgroundColor: "#4f46e5", paddingVertical: 14, borderRadius: 8, alignItems: "center" },
-  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 18 },
-  card: { backgroundColor: "#fff", padding: 16, borderRadius: 8, marginBottom: 12 },
-  curso: { fontSize: 16, fontWeight: "bold" },
-  botao: { marginTop: 10, backgroundColor: "#4f46e5", padding: 10, borderRadius: 6, alignItems: "center" },
-  botaoTexto: { color: "#fff", fontWeight: "bold" },
-});
-
 export default BuscaCertificadoScreen;
+
+//
+// 🎨 Estilos com styled-components
+//
+const Container = styled.View`
+  flex: 1;
+  padding: 20px;
+  background-color: #f9fafb;
+`;
+
+const Title = styled.Text`
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+`;
+
+const Input = styled.TextInput`
+  border-width: 1px;
+  border-color: #d1d5db;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  background-color: #fff;
+  font-size: 16px;
+`;
+
+const Button = styled.TouchableOpacity<{ disabled?: boolean }>`
+  background-color: ${({ disabled }) => (disabled ? "#9ca3af" : "#4f46e5")};
+  padding-vertical: 14px;
+  border-radius: 8px;
+  align-items: center;
+`;
+
+const ButtonText = styled.Text`
+  color: #fff;
+  font-weight: bold;
+  font-size: 18px;
+`;
+
+const Card = styled.View`
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  elevation: 2;
+`;
+
+const Curso = styled.Text`
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+`;
+
+const Botao = styled.TouchableOpacity`
+  margin-top: 10px;
+  background-color: #4f46e5;
+  padding: 10px;
+  border-radius: 6px;
+  align-items: center;
+`;
+
+const BotaoTexto = styled.Text`
+  color: #fff;
+  font-weight: bold;
+`;

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from "react-native";
-import { RouteProp, useNavigation } from "@react-navigation/native";
+import { Alert, ScrollView, TextInput, TouchableOpacity } from "react-native";
+import { useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
+import styled from "styled-components/native";
 import api from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { RootStackParamList } from "../navigation/AppNavigator";
 
-// Tipos para Navigation e Route
 type PerfilScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Perfil">;
 type PerfilScreenRouteProp = RouteProp<RootStackParamList, "Perfil">;
 
@@ -16,6 +16,10 @@ interface User {
   cpf?: string;
   cnpj?: string;
   email: string;
+  telefone?: string;
+  endereco?: string;
+  cidade?: string;
+  estado?: string;
   imagemPerfil?: string;
   logo?: string;
 }
@@ -35,222 +39,276 @@ const PerfilScreen: React.FC<PerfilScreenProps> = ({ route }) => {
   const [nome, setNome] = useState("");
   const [cpfCnpj, setCpfCnpj] = useState("");
   const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [endereco, setEndereco] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [estado, setEstado] = useState("");
   const [foto, setFoto] = useState<string | undefined>(undefined);
-const [userTypeStored, setUserTypeStored] = useState<string | null>(null);
+  const [userTypeStored, setUserTypeStored] = useState<string | null>(null);
 
-useEffect(() => {
-  const fetchUser = async () => {
+  const [showExtras, setShowExtras] = useState(false); // <-- controla campos extras
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const endpoint = userType === "aluno" ? `/alunos/${userId}` : `/universidades/${userId}`;
+        const response = await api.get(endpoint);
+        const u = response.data;
+        setUser(u);
+        setNome(u.nome);
+        setEmail(u.email);
+        setCpfCnpj(userType === "aluno" ? u.cpf : u.cnpj);
+        setTelefone(u.telefone || "");
+        setEndereco(u.endereco || "");
+        setCidade(u.cidade || "");
+        setEstado(u.estado || "");
+        setFoto(userType === "aluno" ? u.imagemPerfil : u.logo);
+        const tipo = await AsyncStorage.getItem("tipo");
+        setUserTypeStored(tipo);
+      } catch {
+        Alert.alert("Erro", "Não foi possível carregar os dados do perfil.");
+      }
+    };
+    fetchUser();
+  }, [userType, userId]);
+
+  const handleAtualizar = async () => {
+    setLoading(true);
     try {
-      // Busca os dados do usuário
-      const endpoint = userType === "aluno" ? `/alunos/${userId}` : `/universidades/${userId}`;
-      const response = await api.get(endpoint);
-      setUser(response.data);
-      setNome(response.data.nome);
-      setEmail(response.data.email);
-      setCpfCnpj(userType === "aluno" ? response.data.cpf : response.data.cnpj);
-      setFoto(userType === "aluno" ? response.data.imagemPerfil : response.data.logo);
+      const endpoint =
+        userType === "aluno"
+          ? `/alunos/atualizarCampos/${userId}`
+          : `/universidades/atualizarCampos/${userId}`;
 
-      // Busca o tipo de perfil armazenado
-      const tipo = await AsyncStorage.getItem("tipo");
-      setUserTypeStored(tipo);
+      const payload: any = { nome, email };
+      if (showExtras) {
+        payload.telefone = telefone;
+        payload.endereco = endereco;
+        payload.cidade = cidade;
+        payload.estado = estado;
+      }
+      if (userType === "aluno") payload.cpf = cpfCnpj;
+      else payload.cnpj = cpfCnpj;
+
+      const response = await api.put(endpoint, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const updatedUser = response.data;
+      setUser(updatedUser);
+      Alert.alert("Sucesso", "Perfil atualizado!");
     } catch (err: any) {
-      Alert.alert("Erro", "Não foi possível carregar os dados do perfil.");
+      console.error("Erro ao atualizar:", err.response?.data || err.message);
+      Alert.alert("Erro", err.response?.data?.error || "Não foi possível atualizar o perfil.");
+    } finally {
+      setLoading(false);
     }
   };
-  fetchUser();
-}, [userType, userId]);
-  
 
-const handleExcluirConta = () => {
-  Alert.alert(
-    "Confirmação",
-    "Você realmente deseja excluir sua conta? Essa ação não pode ser desfeita.",
-    [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Excluir",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            const endpoint =
-              userType === "aluno"
-                ? `/alunos/${userId}`
-                : `/universidades/${userId}`;
-
-            await api.delete(endpoint);
-
-            // Limpa AsyncStorage
-            await AsyncStorage.clear();
-
-            Alert.alert("Sucesso", "Conta excluída com sucesso!");
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Login" }],
-            });
-          } catch (err: any) {
-            console.error("Erro ao excluir conta:", err.response?.data || err.message);
-            Alert.alert(
-              "Erro",
-              err.response?.data?.error || "Não foi possível excluir a conta."
-            );
-          }
-        },
-      },
-    ]
-  );
-};
-
-  // Dentro do handleAtualizar
-const handleAtualizar = async () => {
-  setLoading(true);
-  try {
-    const endpoint =
-      userType === "aluno"
-        ? `/alunos/atualizarCampos/${userId}`
-        : `/universidades/atualizarCampos/${userId}`;
-
-    const payload: any = { nome, email };
-    if (userType === "aluno") payload.cpf = cpfCnpj;
-    else payload.cnpj = cpfCnpj;
-
-    const response = await api.put(endpoint, payload, {
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const updatedUser = response.data;
-
-    // Atualiza o state local
-    setUser(updatedUser);
-    setNome(updatedUser.nome);
-    setEmail(updatedUser.email);
-    if (userType === "aluno") setCpfCnpj(updatedUser.cpf || "");
-    else setCpfCnpj(updatedUser.cnpj || "");
-
-    // Atualiza AsyncStorage preservando o token e outros campos
-    const storedUser = await AsyncStorage.getItem("usuario");
-    const token = await AsyncStorage.getItem("token"); // mantém o token salvo
-
-    if (storedUser) {
-      const oldUser = JSON.parse(storedUser);
-      const mergedUser = { ...oldUser, ...updatedUser }; // preserva campos antigos
-      await AsyncStorage.setItem("usuario", JSON.stringify(mergedUser));
-    } else {
-      await AsyncStorage.setItem("usuario", JSON.stringify(updatedUser));
-    }
-
-await AsyncStorage.setItem("tipo", userType);
-if (token) await AsyncStorage.setItem("token", token); // regrava só pra garantir
-
-
-    // Mostra snackbar simples
-    Alert.alert("Sucesso", "Perfil atualizado!", [
-      {
-        text: "OK",
-        onPress: () => navigation.navigate("Home"),
-      },
-    ]);
-  } catch (err: any) {
-    console.error("Erro ao atualizar:", err.response?.data || err.message);
+  const handleExcluirConta = () => {
     Alert.alert(
-      "Erro",
-      err.response?.data?.error || "Não foi possível atualizar o perfil."
+      "Confirmação",
+      "Você realmente deseja excluir sua conta? Essa ação não pode ser desfeita.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const endpoint =
+                userType === "aluno"
+                  ? `/alunos/${userId}`
+                  : `/universidades/${userId}`;
+              await api.delete(endpoint);
+              await AsyncStorage.clear();
+              Alert.alert("Sucesso", "Conta excluída com sucesso!");
+              navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+            } catch (err: any) {
+              Alert.alert(
+                "Erro",
+                err.response?.data?.error || "Não foi possível excluir a conta."
+              );
+            }
+          },
+        },
+      ]
     );
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-
-  if (!user) return <Text>Carregando...</Text>;
+  if (!user) return <CenteredText>Carregando...</CenteredText>;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Meu Perfil</Text>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: "center", padding: 20 }}>
+      <Title>Meu Perfil</Title>
 
-      {/* Foto */}
-      <TouchableOpacity disabled>
-        <Image
-          source={foto ? { uri: foto } : require("../../assets/perfil-logo-default.png")}
-          style={styles.foto}
-        />
-      </TouchableOpacity>
-      {/* Tipo de Perfil */}
-    {userTypeStored && (
-      <Text style={styles.tipoPerfil}>
-        {userTypeStored === "aluno" ? "Aluno" : "Universidade"}
-      </Text>
-    )}
+      <ProfileCard>
+        <ProfileImage 
+  source={foto ? { uri: foto } : require("../../assets/Elliot.jpeg")} 
+/>
 
+        <ProfileInfo>
+          <UserType>{userTypeStored === "aluno" ? "Aluno" : "Universidade"}</UserType>
+          <UserName>{nome}</UserName>
+          <UserEmail>{email}</UserEmail>
+          <UserCPF>{userType === "aluno" ? `CPF: ${cpfCnpj}` : `CNPJ: ${cpfCnpj}`}</UserCPF>
+        </ProfileInfo>
+      </ProfileCard>
 
-      {/* Nome */}
-      <TextInput
-        style={styles.input}
-        value={nome}
-        onChangeText={setNome}
-        placeholder={userType === "aluno" ? "Nome Completo" : "Nome da Instituição"}
-        maxLength={50}
-      />
+      <Input value={nome} onChangeText={setNome} placeholder={userType === "aluno" ? "Nome Completo" : "Nome da Instituição"} />
+      <Input value={email} onChangeText={setEmail} placeholder="Email" keyboardType="email-address" />
+      {userType === "universidade" ? (
+        <Input value={cpfCnpj} onChangeText={t => { if (t.length <= 14) setCpfCnpj(t); }} placeholder="CNPJ" keyboardType="numeric" />
+      ) : (
+        <ReadOnlyInput>CPF: {cpfCnpj}</ReadOnlyInput>
+      )}
 
-      {/* Email */}
-      <TextInput
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        keyboardType="email-address"
-        maxLength={50}
-      />
+      {/* Botão para mostrar campos extras */}
+      <ExtraButton onPress={() => setShowExtras(!showExtras)}>
+        <ExtraButtonText>{showExtras ? "Ocultar informações extras" : "Adicionar informações extras"}</ExtraButtonText>
+      </ExtraButton>
 
-{/* CPF/CNPJ */}
-{userType === "universidade" ? (
-  <TextInput
-    style={styles.input}
-    value={cpfCnpj}
-    onChangeText={text => {
-      const max = 14; // CNPJ sempre 14 dígitos
-      if (text.length <= max) setCpfCnpj(text);
-    }}
-    placeholder="CNPJ"
-    keyboardType="numeric"
-  />
-) : (
-  // Aluno: CPF é somente leitura
-  <Text style={[styles.input, { backgroundColor: "#f0f0f0" }]}>
-    CPF: {cpfCnpj}
-  </Text>
-)}
+      {showExtras && (
+        <>
+          <Input value={telefone} onChangeText={setTelefone} placeholder="Telefone" keyboardType="phone-pad" />
+          <Input value={endereco} onChangeText={setEndereco} placeholder="Endereço" />
+          <Input value={cidade} onChangeText={setCidade} placeholder="Cidade" />
+          <Input value={estado} onChangeText={setEstado} placeholder="Estado" />
+        </>
+      )}
 
-
-      <TouchableOpacity style={styles.button} onPress={handleAtualizar} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? "Atualizando..." : "Atualizar Perfil"}</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-  style={[styles.button, { backgroundColor: "#e53935", marginTop: 20 }]}
-  onPress={handleExcluirConta}
->
-  <Text style={styles.buttonText}>Excluir Conta</Text>
-</TouchableOpacity>
-
+      <ButtonRow>
+        <SmallButton onPress={handleAtualizar} disabled={loading}>
+          <ButtonText>{loading ? "Atualizando..." : "Atualizar"}</ButtonText>
+        </SmallButton>
+        <SmallButtonDelete onPress={handleExcluirConta}>
+          <ButtonText>Excluir Conta</ButtonText>
+        </SmallButtonDelete>
+      </ButtonRow>
     </ScrollView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flexGrow: 1, alignItems: "center", padding: 20 },
-  title: { fontSize: 28, fontWeight: "bold", marginBottom: 20 },
-  input: { width: "100%", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 12, marginBottom: 15 },
-  button: { backgroundColor: "#4f46e5", padding: 15, borderRadius: 5, alignItems: "center", width: "100%" },
-  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-  foto: { width: 100, height: 100, borderRadius: 50, marginBottom: 10 },
-  link: { color: "#4f46e5", fontWeight: "bold", textAlign: "center", marginBottom: 20 },
-  tipoPerfil: {
-  fontSize: 16,
-  fontStyle: "italic",
-  color: "#555",
-  marginBottom: 15,
-}
+//
+// Styled Components
+//
+const CenteredText = styled.Text`
+  flex: 1;
+  text-align: center;
+  margin-top: 50%;
+  font-size: 16px;
+`;
 
-});
+const Title = styled.Text`
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+`;
+
+const ProfileCard = styled.View`
+  width: 100%;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  flex-direction: row;
+  align-items: center;
+  shadow-color: #000;
+  shadow-opacity: 0.1;
+  shadow-radius: 6px;
+  elevation: 4;
+`;
+
+const ProfileImage = styled.Image`
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  margin-right: 16px;
+`;
+
+const ProfileInfo = styled.View`
+  flex: 1;
+`;
+
+const UserType = styled.Text`
+  font-size: 14px;
+  font-style: italic;
+  color: #555;
+  margin-bottom: 6px;
+`;
+
+const UserName = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 4px;
+`;
+
+const UserEmail = styled.Text`
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 2px;
+`;
+
+const UserCPF = styled.Text`
+  font-size: 14px;
+  color: #555;
+`;
+
+const Input = styled.TextInput`
+  width: 100%;
+  border-width: 1px;
+  border-color: #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #fff;
+`;
+
+const ReadOnlyInput = styled.Text`
+  width: 100%;
+  border-width: 1px;
+  border-color: #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #f0f0f0;
+`;
+
+const ExtraButton = styled.TouchableOpacity`
+  margin-bottom: 12px;
+`;
+
+const ExtraButtonText = styled.Text`
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: bold;
+`;
+
+const ButtonRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+`;
+
+const SmallButton = styled.TouchableOpacity`
+  background-color: #4f46e5;
+  flex: 1;
+  padding: 14px;
+  border-radius: 8px;
+  align-items: center;
+  margin-right: 10px;
+`;
+
+const SmallButtonDelete = styled(SmallButton)`
+  background-color: #e53935;
+  margin-right: 0;
+`;
+
+const ButtonText = styled.Text`
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+`;
 
 export default PerfilScreen;

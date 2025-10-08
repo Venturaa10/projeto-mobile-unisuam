@@ -1,13 +1,6 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  Platform,
-} from "react-native";
+import { Alert, Platform } from "react-native";
+import styled from "styled-components/native";
 import * as DocumentPicker from "expo-document-picker";
 import api from "../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -29,7 +22,6 @@ const RegistraCertificadoScreen: React.FC = () => {
     return cpf;
   };
 
-  // Seleciona PDF
   const handleSelectPdf = async () => {
     if (Platform.OS === "web") {
       const input = document.createElement("input");
@@ -48,11 +40,7 @@ const RegistraCertificadoScreen: React.FC = () => {
           multiple: false,
         });
 
-        if (result.canceled) {
-          console.log("Seleção de documento cancelada");
-          return;
-        }
-
+        if (result.canceled) return;
         const file = result.assets[0];
         setPdfFile(file);
       } catch (err) {
@@ -84,8 +72,6 @@ const RegistraCertificadoScreen: React.FC = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem("token");
-
-      // Pega usuário logado para obter universidadeId
       const usuarioStr = await AsyncStorage.getItem("usuario");
       if (!usuarioStr) throw new Error("Usuário não encontrado");
       const usuario = JSON.parse(usuarioStr);
@@ -111,7 +97,7 @@ const RegistraCertificadoScreen: React.FC = () => {
         } as any);
       }
 
-      const response = await api.post("/certificados/", formData, {
+      await api.post("/certificados/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: token ? `Bearer ${token}` : "",
@@ -119,9 +105,6 @@ const RegistraCertificadoScreen: React.FC = () => {
       });
 
       Alert.alert("Sucesso", "Certificado registrado com sucesso!");
-      console.log("Certificado criado:", response.data);
-
-      // Limpa formulário
       setNomeAluno("");
       setCpfAluno("");
       setMatricula("");
@@ -136,87 +119,98 @@ const RegistraCertificadoScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Registrar Certificado</Text>
+    <Container>
+      <Title>Registrar Certificado</Title>
 
-      <TextInput
-        style={styles.input}
+      <Input
         placeholder="Nome do Aluno"
         value={nomeAluno}
         onChangeText={setNomeAluno}
         maxLength={50}
       />
-
-      <TextInput
-        style={styles.input}
+      <Input
         placeholder="CPF do Aluno"
         keyboardType="numeric"
         value={cpfAluno}
         onChangeText={(text) => setCpfAluno(formatCPF(text))}
         maxLength={14}
       />
-
-      <TextInput
-        style={styles.input}
+      <Input
         placeholder="Matrícula (opcional)"
         value={matricula}
         onChangeText={setMatricula}
         maxLength={15}
       />
-
-      <TextInput
-        style={styles.input}
+      <Input
         placeholder="Nome do Curso"
         value={nomeCurso}
         onChangeText={setNomeCurso}
         maxLength={50}
       />
 
-      <TouchableOpacity style={styles.uploadBtn} onPress={handleSelectPdf}>
-        <Text style={styles.uploadText}>
-          {pdfFile ? pdfFile.name : "Selecionar PDF"}
-        </Text>
-      </TouchableOpacity>
+      <UploadButton onPress={handleSelectPdf}>
+        <UploadText>{pdfFile ? pdfFile.name : "Selecionar PDF"}</UploadText>
+      </UploadButton>
 
-      <TouchableOpacity
-        style={[styles.submitBtn, loading && { opacity: 0.7 }]}
-        onPress={handleSubmit}
-        disabled={loading}
-      >
-        <Text style={styles.submitText}>{loading ? "Enviando..." : "Registrar"}</Text>
-      </TouchableOpacity>
-    </View>
+      <SubmitButton onPress={handleSubmit} disabled={loading}>
+        <SubmitText>{loading ? "Enviando..." : "Registrar"}</SubmitText>
+      </SubmitButton>
+    </Container>
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f9fafb" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-    backgroundColor: "#fff",
-  },
-  uploadBtn: {
-    borderWidth: 1,
-    borderColor: "#4f46e5",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-    backgroundColor: "#eef2ff",
-    alignItems: "center",
-  },
-  uploadText: { color: "#4f46e5", fontWeight: "600" },
-  submitBtn: {
-    backgroundColor: "#4f46e5",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  submitText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-});
+//
+// Styled Components
+//
+const Container = styled.ScrollView.attrs({ contentContainerStyle: { alignItems: "center", padding: 20 } })`
+  flex: 1;
+  background-color: #f9fafb;
+`;
+
+const Title = styled.Text`
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+`;
+
+const Input = styled.TextInput`
+  width: 100%;
+  border-width: 1px;
+  border-color: #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #fff;
+`;
+
+const UploadButton = styled.TouchableOpacity`
+  width: 100%;
+  border-width: 1px;
+  border-color: #4f46e5;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #eef2ff;
+  align-items: center;
+`;
+
+const UploadText = styled.Text`
+  color: #4f46e5;
+  font-weight: 600;
+`;
+
+const SubmitButton = styled.TouchableOpacity`
+  background-color: #4f46e5;
+  padding: 15px;
+  border-radius: 8px;
+  align-items: center;
+  width: 100%;
+`;
+
+const SubmitText = styled.Text`
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+`;
 
 export default RegistraCertificadoScreen;

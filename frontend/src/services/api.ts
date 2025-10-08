@@ -21,7 +21,7 @@ export interface LoginResponse {
 // });
 
 const api = axios.create({
-  baseURL: "http://192.168.1.74:3000/api", // IP na rede local no windows em casa
+  baseURL: "http://172.20.10.10:3000/api", // IP na rede local no windows em casa
   headers: {
     "Content-Type": "application/json",
   },

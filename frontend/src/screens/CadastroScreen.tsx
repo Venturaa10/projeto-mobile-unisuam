@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from "react-native";
+import { Text, Alert } from "react-native";
+import styled from "styled-components/native";
 import api from "../services/api";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TextInputMask } from "react-native-masked-text";
 
@@ -24,7 +25,6 @@ const CadastroScreen: React.FC = () => {
 
   const navigation = useNavigation<CadastroScreenNavigationProp>();
 
-  // Limpar tokens e redirecionar se já logado
   useEffect(() => {
     const init = async () => {
       await AsyncStorage.removeItem("token");
@@ -32,7 +32,7 @@ const CadastroScreen: React.FC = () => {
 
       const existingToken = await AsyncStorage.getItem("token");
       if (existingToken) {
-        navigation.replace("Home"); // Redireciona sem permitir voltar
+        navigation.replace("Home");
       }
     };
     init();
@@ -58,76 +58,62 @@ const CadastroScreen: React.FC = () => {
           ? { nome, cpf: cpfCnpj.replace(/\D/g, ""), email, senha }
           : { nome, cnpj: cpfCnpj.replace(/\D/g, ""), email, senha };
 
-      const response = await api.post(endpoint, payload);
-      Alert.alert(
-        "Sucesso",
-        `${userType === "aluno" ? "Aluno" : "Universidade"} cadastrado com sucesso!`
-      );
+      await api.post(endpoint, payload);
+      Alert.alert("Sucesso", `${userType === "aluno" ? "Aluno" : "Universidade"} cadastrado com sucesso!`);
 
-      navigation.replace("Login"); // Redireciona para login
-      } catch (err: any) {
-        console.log("ERRO AO CADASTRAR ===>", JSON.stringify(err, null, 2));
-        Alert.alert(
-          "Erro",
-          err.response?.data?.error || err.message || "Erro ao cadastrar"
-        );
-      } finally {
-        setLoading(false);
-      }
-
+      navigation.replace("Login");
+    } catch (err: any) {
+      console.log("ERRO AO CADASTRAR ===>", JSON.stringify(err, null, 2));
+      Alert.alert("Erro", err.response?.data?.error || err.message || "Erro ao cadastrar");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    setCpfCnpj("");
+  }, [userType]);
 
   const getButtonText = () => {
     if (loading) return "Carregando...";
     return userType === "aluno" ? "Cadastrar como Aluno" : "Cadastrar como Universidade";
   };
 
-  // Limpar campo ao trocar tipo de usuario
-  useEffect(() => {
-    setCpfCnpj("");
-  }, [userType]);
-
   return (
-      <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Cadastro</Text>
+    <Container>
+      <Title>Cadastro</Title>
 
-      {/* Seletor de tipo */}
-      <View style={styles.selector}>
-        <TouchableOpacity
-          style={[styles.option, userType === "aluno" && styles.selectedOption]}
+      <Selector>
+        <Option
+          isSelected={userType === "aluno"}
           onPress={() => setUserType("aluno")}
         >
-          <Text style={userType === "aluno" ? styles.selectedText : styles.optionText}>Aluno</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.option, userType === "universidade" && styles.selectedOption]}
+          <OptionText isSelected={userType === "aluno"}>Aluno</OptionText>
+        </Option>
+
+        <Option
+          isSelected={userType === "universidade"}
           onPress={() => setUserType("universidade")}
         >
-          <Text style={userType === "universidade" ? styles.selectedText : styles.optionText}>Universidade</Text>
-        </TouchableOpacity>
-      </View>
+          <OptionText isSelected={userType === "universidade"}>Universidade</OptionText>
+        </Option>
+      </Selector>
 
-      {/* Nome */}
-      <TextInput
-        style={styles.input}
+      <Input
         placeholder={userType === "aluno" ? "Nome Completo" : "Nome da Instituição/Universidade"}
         value={nome}
         onChangeText={setNome}
         maxLength={50}
       />
 
-      {/* CPF ou CNPJ com máscara */}
-      <TextInputMask
+      <MaskedInput
         type={userType === "aluno" ? "cpf" : "cnpj"}
-        style={styles.input}
         placeholder={userType === "aluno" ? "CPF" : "CNPJ"}
         value={cpfCnpj}
         onChangeText={setCpfCnpj}
       />
-      
-      {/* Email */}
-      <TextInput
-        style={styles.input}
+
+      <Input
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
@@ -135,63 +121,142 @@ const CadastroScreen: React.FC = () => {
         maxLength={50}
       />
 
-      {/* Senha */}
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={styles.inputPassword}
+      <PasswordContainer>
+        <InputPassword
           placeholder="Senha"
           value={senha}
           onChangeText={setSenha}
           secureTextEntry={!mostrarSenha}
           maxLength={25}
         />
-        <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
+        <IconButton onPress={() => setMostrarSenha(!mostrarSenha)}>
           <Ionicons name={mostrarSenha ? "eye-off" : "eye"} size={24} color="gray" />
-        </TouchableOpacity>
-      </View>
+        </IconButton>
+      </PasswordContainer>
 
-      {/* Confirmar senha */}
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={styles.inputPassword}
+      <PasswordContainer>
+        <InputPassword
           placeholder="Confirmar Senha"
           value={confirmarSenha}
           onChangeText={setConfirmarSenha}
           secureTextEntry={!mostrarConfirmarSenha}
           maxLength={25}
         />
-        <TouchableOpacity onPress={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}>
+        <IconButton onPress={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}>
           <Ionicons name={mostrarConfirmarSenha ? "eye-off" : "eye"} size={24} color="gray" />
-        </TouchableOpacity>
-      </View>
+        </IconButton>
+      </PasswordContainer>
 
-      <TouchableOpacity style={styles.button} onPress={handleCadastro} disabled={loading}>
-        <Text style={styles.buttonText}>{getButtonText()}</Text>
-      </TouchableOpacity>
+      <Button onPress={handleCadastro} disabled={loading}>
+        <ButtonText>{getButtonText()}</ButtonText>
+      </Button>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Login")} style={styles.link}>
-        <Text style={styles.linkText}>Já tem conta? Entrar</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      <Link onPress={() => navigation.navigate("Login")}>
+        <LinkText>Já tem conta? Entrar</LinkText>
+      </Link>
+    </Container>
   );
 };
 
-
-const styles = StyleSheet.create({
-  container: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20 },
-  title: { fontSize: 28, fontWeight: "bold", textAlign: "center", marginBottom: 30 },
-  selector: { flexDirection: "row", justifyContent: "center", marginBottom: 20 },
-  option: { padding: 10, borderWidth: 1, borderColor: "#ccc", marginHorizontal: 5, borderRadius: 5 },
-  selectedOption: { backgroundColor: "#4f46e5", borderColor: "#4f46e5" },
-  optionText: { color: "#000" },
-  selectedText: { color: "#fff", fontWeight: "bold" },
-  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 10, marginBottom: 15, width: "100%" },
-  passwordContainer: { flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, paddingHorizontal: 10, marginBottom: 15, width: "100%" },
-  inputPassword: { flex: 1, paddingVertical: 10 },
-  button: { backgroundColor: "#4f46e5", padding: 15, borderRadius: 5, alignItems: "center", width: "100%" },
-  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-  link: { marginTop: 15 },
-  linkText: { color: "#4f46e5", fontWeight: "bold", fontSize: 16 },
-});
-
 export default CadastroScreen;
+
+//
+// 🎨 Estilos com styled-components
+//
+const Container = styled.ScrollView.attrs({
+  contentContainerStyle: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+})`
+  background-color: #fff;
+`;
+
+const Title = styled.Text`
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+`;
+
+const Selector = styled.View`
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 20px;
+`;
+
+const Option = styled.TouchableOpacity<{ isSelected: boolean }>`
+  padding: 10px;
+  border-width: 1px;
+  border-color: ${({ isSelected }) => (isSelected ? "#4f46e5" : "#ccc")};
+  background-color: ${({ isSelected }) => (isSelected ? "#4f46e5" : "#fff")};
+  margin: 0 5px;
+  border-radius: 5px;
+`;
+
+const OptionText = styled.Text<{ isSelected: boolean }>`
+  color: ${({ isSelected }) => (isSelected ? "#fff" : "#000")};
+  font-weight: ${({ isSelected }) => (isSelected ? "bold" : "normal")};
+`;
+
+const Input = styled.TextInput`
+  border-width: 1px;
+  border-color: #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 15px;
+  width: 100%;
+`;
+
+const MaskedInput = styled(TextInputMask)`
+  border-width: 1px;
+  border-color: #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 15px;
+  width: 100%;
+`;
+
+const PasswordContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  border-width: 1px;
+  border-color: #ccc;
+  border-radius: 5px;
+  padding-horizontal: 10px;
+  margin-bottom: 15px;
+  width: 100%;
+`;
+
+const InputPassword = styled.TextInput`
+  flex: 1;
+  padding-vertical: 10px;
+`;
+
+const IconButton = styled.TouchableOpacity``;
+
+const Button = styled.TouchableOpacity<{ disabled?: boolean }>`
+  background-color: ${({ disabled }) => (disabled ? "#9ca3af" : "#4f46e5")};
+  padding: 15px;
+  border-radius: 5px;
+  align-items: center;
+  width: 100%;
+`;
+
+const ButtonText = styled.Text`
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+`;
+
+const Link = styled.TouchableOpacity`
+  margin-top: 15px;
+`;
+
+const LinkText = styled.Text`
+  color: #4f46e5;
+  font-weight: bold;
+  font-size: 16px;
+`;
