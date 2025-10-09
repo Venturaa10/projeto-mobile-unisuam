@@ -104,7 +104,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
               source={
                 usuario.imagem
                   ? { uri: usuario.imagem }
-                  : require("../../assets/perfil-logo-default.png")
+                  : require("../../assets/perfil_logo_default.png")
               }
               style={styles.profileImage}
             />

@@ -170,7 +170,7 @@ if (token) await AsyncStorage.setItem("token", token); // regrava só pra garant
       {/* Foto */}
       <TouchableOpacity disabled>
         <Image
-          source={foto ? { uri: foto } : require("../../assets/perfil-logo-default.png")}
+          source={foto ? { uri: foto } : require("../../assets/perfil_logo_default.png")}
           style={styles.foto}
         />
       </TouchableOpacity>
