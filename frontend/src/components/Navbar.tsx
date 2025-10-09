@@ -99,16 +99,16 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
           style={styles.appRow}
         >
           <Text style={styles.title}>Meu App</Text>
-          {usuario && (
+          {/* {usuario && (
             <Image
               source={
                 usuario.imagem
                   ? { uri: usuario.imagem }
-                  : require("../../assets/perfil_logo_default.png")
+                  : require("../../assets/logo.png")
               }
               style={styles.profileImage}
             />
-          )}
+          )} */}
         </TouchableOpacity>
         <TouchableOpacity style={styles.hamburger} onPress={() => setMenuOpen(!menuOpen)}>
           <Icon name={menuOpen ? "close" : "menu"} size={28} color="#fff" />

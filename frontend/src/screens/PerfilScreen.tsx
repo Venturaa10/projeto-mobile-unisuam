@@ -168,12 +168,12 @@ if (token) await AsyncStorage.setItem("token", token); // regrava só pra garant
       <Text style={styles.title}>Meu Perfil</Text>
 
       {/* Foto */}
-      <TouchableOpacity disabled>
+      {/* <TouchableOpacity disabled>
         <Image
-          source={foto ? { uri: foto } : require("../../assets/perfil_logo_default.png")}
+          source={foto ? { uri: foto } : require("../../assets/logo.png")}
           style={styles.foto}
         />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       {/* Tipo de Perfil */}
     {userTypeStored && (
       <Text style={styles.tipoPerfil}>
