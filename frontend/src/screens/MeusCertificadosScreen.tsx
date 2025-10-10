@@ -108,14 +108,14 @@ const BASE_URL = "https://projeto-mobile-unisuam.onrender.com";
           <Text style={styles.universidade}>Universidade: {item.universidade.nome}</Text>
           <Text style={styles.universidade}>CNPJ: {item.universidade.cnpj}</Text>
 
-          {item.arquivo && (
-            <TouchableOpacity
-              style={styles.botao}
-              onPress={() => Linking.openURL(`${BASE_URL}/${item.arquivo}`)}
-            >
-              <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
-            </TouchableOpacity>
-          )}
+{item.arquivo && (
+  <TouchableOpacity
+    style={styles.botao}
+    onPress={() => Linking.openURL(item.arquivo)}
+  >
+    <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
+  </TouchableOpacity>
+)}
 
           <TouchableOpacity
             style={styles.visibilityBtn}

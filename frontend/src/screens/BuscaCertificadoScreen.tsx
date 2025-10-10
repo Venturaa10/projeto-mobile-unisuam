@@ -4,7 +4,7 @@ import api from "../services/api";
 
 // const BASE_URL = "http://1.0.11.21:3000"; // Ip do backend no mac no trabalho
 // const BASE_URL = "http://192.168.1.74:3000";
-const BASE_URL = "https://projeto-mobile-unisuam.onrender.com";
+// const BASE_URL = "https://projeto-mobile-unisuam.onrender.com";
 
 
 const BuscaCertificadoScreen: React.FC = () => {
@@ -50,14 +50,14 @@ const BuscaCertificadoScreen: React.FC = () => {
       <Text>CPF: {item.cpfAluno}</Text>
       <Text>Emitido em: {new Date(item.dataEmissao).toLocaleDateString("pt-BR")}</Text>
 
-      {item.arquivo && (
-        <TouchableOpacity
-          style={styles.botao}
-          onPress={() => Linking.openURL(`${BASE_URL}/${item.arquivo}`)}
-        >
-          <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
-        </TouchableOpacity>
-      )}
+{item.arquivo && (
+  <TouchableOpacity
+    style={styles.botao}
+    onPress={() => Linking.openURL(item.arquivo)}
+  >
+    <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
+  </TouchableOpacity>
+)}
     </View>
   );
 
