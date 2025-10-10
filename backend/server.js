@@ -8,6 +8,7 @@ import { sequelize } from "./src/initModels.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs"; // ✅ importa o fs
 
 const app = express();
 
@@ -30,7 +31,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-app.use("/uploads", express.static(path.join(__dirname, "src/uploads")));
+// app.use("/uploads", express.static(path.join(__dirname, "src/uploads")));
+
+// ✅ Garante que a pasta de uploads existe, mesmo em produção
+const uploadDir = path.join(__dirname, "src/uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log("📁 Pasta 'uploads' criada automaticamente!");
+}
+
+// ✅ Permite acesso aos arquivos enviados
+app.use("/uploads", express.static(uploadDir));
+
 
 app.listen(3000, () => console.log("Servidor rodando na porta 3000"));
 
