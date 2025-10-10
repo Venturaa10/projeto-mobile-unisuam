@@ -38,6 +38,7 @@ export const criarCertificado = async (req, res) => {
       universidadeId,
     });
 
+    console.log("Certificado criado:", certificado);
     res.status(201).json(certificado);
   } catch (err) {
     console.error(err);
