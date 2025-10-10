@@ -14,7 +14,11 @@ export const criarCertificado = async (req, res) => {
       const streamUpload = (buffer) => {
         return new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
-            { folder: "certificados", resource_type: "raw" }, // PDFs
+            {
+              folder: "certificados",
+              resource_type: "auto", // ✅ deixa o Cloudinary detectar o tipo (PDF, imagem, etc)
+              format: "pdf", // ✅ garante que seja tratado como PDF
+            },
             (error, result) => {
               if (result) resolve(result);
               else reject(error);
@@ -38,10 +42,10 @@ export const criarCertificado = async (req, res) => {
       universidadeId,
     });
 
-    console.log("Certificado criado:", certificado);
+    console.log("✅ Certificado criado:", certificado);
     res.status(201).json(certificado);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Erro ao criar certificado:", err);
     res.status(400).json({ error: err.message });
   }
 };
