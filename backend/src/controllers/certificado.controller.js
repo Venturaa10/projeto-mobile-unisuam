@@ -11,6 +11,7 @@ export const criarCertificado = async (req, res) => {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "certificados",
         resource_type: "raw", // PDFs e outros arquivos que não são imagens
+        public_id: req.file.originalname.replace(/\s+/g, "_"), // substitui espaços por _
       });
       arquivoUrl = result.secure_url; // URL pública do arquivo
     }
