@@ -1,9 +1,19 @@
 import { Certificado, Universidade } from "../initModels.js";
+import cloudinary from "../config/cloudinary.js";
 
 // Criar certificado
 export const criarCertificado = async (req, res) => {
   try {
     const { nomeAluno, cpfAluno, matricula, nomeCurso, universidadeId } = req.body;
+
+    let arquivoUrl = null;
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "certificados",
+        resource_type: "auto", // aceita pdf, imagens etc
+      });
+      arquivoUrl = result.secure_url; // URL pública do arquivo
+    }
 
     const certificado = await Certificado.create({
       nomeAluno,
@@ -11,7 +21,7 @@ export const criarCertificado = async (req, res) => {
       matricula,
       nomeCurso,
       dataEmissao: new Date(),
-      arquivo: req.file ? `uploads/${req.file.filename}` : null,
+      arquivo: arquivoUrl,
       universidadeId,
     });
 
