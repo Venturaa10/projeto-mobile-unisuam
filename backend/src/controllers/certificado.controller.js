@@ -1,24 +1,29 @@
 import { Certificado, Universidade } from "../initModels.js";
 import cloudinary from "../config/cloudinary.js";
+import streamifier from "streamifier"; // npm i streamifier
 
-// Criar certificado
 export const criarCertificado = async (req, res) => {
   try {
     const { nomeAluno, cpfAluno, matricula, nomeCurso, universidadeId } = req.body;
 
     let arquivoUrl = null;
 
-    if (req.file) {
-      arquivoUrl = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: "certificados", resource_type: "raw" }, // PDFs e outros
-          (error, result) => {
-            if (error) return reject(error);
-            resolve(result.secure_url);
-          }
-        );
-        uploadStream.end(req.file.buffer); // envia o buffer do multer
-      });
+    if (req.file && req.file.buffer) {
+      const streamUpload = (buffer) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "certificados", resource_type: "raw" }, // PDFs
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
+            }
+          );
+          streamifier.createReadStream(buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload(req.file.buffer);
+      arquivoUrl = result.secure_url;
     }
 
     const certificado = await Certificado.create({
