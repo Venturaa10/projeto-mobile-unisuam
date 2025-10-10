@@ -7,13 +7,18 @@ export const criarCertificado = async (req, res) => {
     const { nomeAluno, cpfAluno, matricula, nomeCurso, universidadeId } = req.body;
 
     let arquivoUrl = null;
+
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: "certificados",
-        resource_type: "raw", // PDFs e outros arquivos que não são imagens
-        public_id: req.file.originalname.replace(/\s+/g, "_"), // substitui espaços por _
+      arquivoUrl = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: "certificados", resource_type: "raw" }, // PDFs e outros
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result.secure_url);
+          }
+        );
+        uploadStream.end(req.file.buffer); // envia o buffer do multer
       });
-      arquivoUrl = result.secure_url; // URL pública do arquivo
     }
 
     const certificado = await Certificado.create({
@@ -32,7 +37,6 @@ export const criarCertificado = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
-
 
 // Listar certificados de um aluno (apenas públicos se for acesso público)
 export const listarCertificadosPorCpf = async (req, res) => {
