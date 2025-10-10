@@ -1,13 +1,15 @@
 import { Certificado, Universidade } from "../initModels.js";
 import cloudinary from "../config/cloudinary.js";
-import streamifier from "streamifier"; // npm i streamifier
+import streamifier from "streamifier";
 
+// Criar certificado
 export const criarCertificado = async (req, res) => {
   try {
     const { nomeAluno, cpfAluno, matricula, nomeCurso, universidadeId } = req.body;
 
     let arquivoUrl = null;
 
+    // Upload para Cloudinary via buffer
     if (req.file && req.file.buffer) {
       const streamUpload = (buffer) => {
         return new Promise((resolve, reject) => {
@@ -35,7 +37,7 @@ export const criarCertificado = async (req, res) => {
       arquivo: arquivoUrl,
       universidadeId,
     });
-    console.log(arquivoUrl);
+
     res.status(201).json(certificado);
   } catch (err) {
     console.error(err);
@@ -43,21 +45,14 @@ export const criarCertificado = async (req, res) => {
   }
 };
 
-// Listar certificados de um aluno (apenas públicos se for acesso público)
+// Listar certificados por CPF
 export const listarCertificadosPorCpf = async (req, res) => {
   try {
-    let { cpf } = req.params;
-    cpf = cpf.replace(/\D/g, ""); // só números
+    const cpf = req.params.cpf.replace(/\D/g, "");
 
     const certificados = await Certificado.findAll({
       where: { cpfAluno: cpf },
-      include: [
-        {
-          model: Universidade,
-          as: "universidade",
-          attributes: ["id", "nome"], // só os campos que quer expor
-        }
-      ],
+      include: [{ model: Universidade, as: "universidade", attributes: ["id", "nome"] }],
       order: [["dataEmissao", "DESC"]],
     });
 
@@ -67,8 +62,7 @@ export const listarCertificadosPorCpf = async (req, res) => {
   }
 };
 
-
-// Listar todos os certificados (opcional: apenas admin)
+// Listar todos os certificados
 export const listarTodosCertificados = async (req, res) => {
   try {
     const certificados = await Certificado.findAll();
@@ -78,8 +72,7 @@ export const listarTodosCertificados = async (req, res) => {
   }
 };
 
-
-// Atualizar privacidade de certificado
+// Atualizar privacidade
 export const atualizarPrivacidade = async (req, res) => {
   try {
     const { id } = req.params;
