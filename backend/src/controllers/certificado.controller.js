@@ -13,11 +13,15 @@ export const criarCertificado = async (req, res) => {
     if (req.file) {
       const filePath = req.file.path;
 
+      console.log("📥 Nome original do arquivo:", req.file.originalname);
+
       // Gera um public_id seguro e limpo
       const publicId = `${Date.now()}-${req.file.originalname
         .replace(/\.[^/.]+$/, "")   // remove extensão
         .replace(/\s+/g, "_")       // espaços -> underline
         .replace(/[^\w\-]/g, "")}`; // remove caracteres especiais
+
+      console.log("🆔 public_id gerado:", publicId);
 
       // Upload para o Cloudinary
       const result = await cloudinary.uploader.upload(filePath, {
@@ -27,7 +31,12 @@ export const criarCertificado = async (req, res) => {
         type: "upload", // garante acesso público
       });
 
-      arquivoUrl = result.secure_url; // <-- usar sempre essa URL
+      console.log("🔗 secure_url retornado do Cloudinary:", result.secure_url);
+      console.log("📁 Caminho completo salvo no Cloudinary:", result.public_id);
+
+      arquivoUrl = result.secure_url;
+
+      console.log("📝 URL atribuída para salvar no banco:", arquivoUrl);
 
       // Remove o arquivo temporário
       fs.unlinkSync(filePath);
@@ -44,7 +53,7 @@ export const criarCertificado = async (req, res) => {
       universidadeId,
     });
 
-    console.log("✅ Certificado criado:", certificado);
+    console.log("✅ Certificado salvo no banco:", certificado);
     res.status(201).json(certificado);
 
   } catch (err) {
@@ -52,6 +61,7 @@ export const criarCertificado = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
 
 
 
