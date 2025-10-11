@@ -11,30 +11,29 @@ export const criarCertificado = async (req, res) => {
     let arquivoUrl = null;
 
     if (req.file) {
-      const filePath = req.file.path; // caminho do arquivo temporário
+      const filePath = req.file.path;
 
-      // gera um public_id seguro
+      // Gera um public_id seguro e limpo
       const publicId = `${Date.now()}-${req.file.originalname
-        .replace(/\.[^/.]+$/, "")   // remove a extensão
-        .replace(/\s+/g, "_")       // espaços → underline
+        .replace(/\.[^/.]+$/, "")   // remove extensão
+        .replace(/\s+/g, "_")       // espaços -> underline
         .replace(/[^\w\-]/g, "")}`; // remove caracteres especiais
 
-      // envia para o Cloudinary
-        const result = await cloudinary.uploader.upload(filePath, {
-          folder: "certificados",
-          resource_type: "raw",
-          public_id: publicId,
-          flags: "attachment:false",
-          type: "upload", // garante que o arquivo seja público
-        });
+      // Upload para o Cloudinary
+      const result = await cloudinary.uploader.upload(filePath, {
+        folder: "certificados",
+        resource_type: "raw",
+        public_id: publicId,
+        type: "upload", // garante acesso público
+      });
 
+      arquivoUrl = result.secure_url; // <-- usar sempre essa URL
 
-      arquivoUrl = result.secure_url;
-
-      // deleta o arquivo temporário
+      // Remove o arquivo temporário
       fs.unlinkSync(filePath);
     }
 
+    // Criação no banco
     const certificado = await Certificado.create({
       nomeAluno,
       cpfAluno: cpfAluno.replace(/\D/g, ""),
@@ -47,6 +46,7 @@ export const criarCertificado = async (req, res) => {
 
     console.log("✅ Certificado criado:", certificado);
     res.status(201).json(certificado);
+
   } catch (err) {
     console.error("❌ Erro ao criar certificado:", err);
     res.status(400).json({ error: err.message });
