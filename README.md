@@ -339,3 +339,6 @@ const styles = StyleSheet.create({
 
 export default PerfilScreen;
 
+Então, reca´pitulando, o problema não é no meu c´´odigo, mas sim na permissão da nuvem (cloudinary) para acessar os arquivos, correto? 
+
+tmascyjVCF7oTnES

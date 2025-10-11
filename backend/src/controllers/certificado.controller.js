@@ -1,7 +1,6 @@
 import { Certificado, Universidade } from "../initModels.js";
-import cloudinary from "../config/cloudinary.js";
-import streamifier from "streamifier";
 import fs from "fs";
+import { supabase } from "../config/supabase.js";
 
 
 export const criarCertificado = async (req, res) => {
@@ -10,49 +9,45 @@ export const criarCertificado = async (req, res) => {
 
     let arquivoUrl = null;
 
-if (req.file) {
-  const filePath = req.file.path;
+    if (req.file) {
+      const filePath = req.file.path;
+      const originalNameDecoded = decodeURIComponent(req.file.originalname);
 
-  console.log("📥 Nome original do arquivo:", req.file.originalname);
+      // Gera um nome seguro para o arquivo no Supabase
+      const fileName = `${Date.now()}-${originalNameDecoded
+        .replace(/\.[^/.]+$/, "")
+        .replace(/\s+/g, "_")
+        .replace(/[^\w\-]/g, "")}.pdf`; // adiciona a extensão .pdf explicitamente
 
-  const originalNameDecoded = decodeURIComponent(req.file.originalname);
-  console.log("📄 Nome decodificado:", originalNameDecoded);
+      console.log("📄 Nome do arquivo para upload:", fileName);
 
-  const publicId = `${Date.now()}-${originalNameDecoded
-    .replace(/\.[^/.]+$/, "")
-    .replace(/\s+/g, "_")
-    .replace(/[^\w\-]/g, "")}`;
+      // Faz o upload para o bucket "certificados"
+      const { data, error: uploadError } = await supabase
+        .storage
+        .from("certificados")
+        .upload(fileName, fs.createReadStream(filePath), {
+          contentType: "application/pdf",
+        });
 
-  console.log("🆔 public_id gerado:", publicId);
+      // Apaga o arquivo temporário
+      fs.unlinkSync(filePath);
 
-  const result = await cloudinary.uploader.upload(filePath, {
-    folder: "certificados",
-    resource_type: "raw",
-    public_id: publicId,
-    type: "upload",
-  });
+      if (uploadError) {
+        console.error("❌ Erro ao enviar arquivo para Supabase:", uploadError.message);
+        return res.status(500).json({ error: uploadError.message });
+      }
 
-  console.log("🔗 secure_url retornado do Cloudinary:", result.secure_url);
-  console.log("📁 Caminho completo salvo no Cloudinary:", result.public_id);
+      // Gera a URL pública do arquivo
+      const { data: publicUrl } = supabase
+        .storage
+        .from("certificados")
+        .getPublicUrl(fileName);
 
-  arquivoUrl = result.secure_url;
+      arquivoUrl = publicUrl.publicUrl;
+      console.log("🔗 URL pública gerada:", arquivoUrl);
+    }
 
-  // Gera URL assinada para teste, que vai funcionar mesmo com restrição de acesso
-  const signedUrl = cloudinary.url(publicId, {
-    resource_type: "raw",
-    sign_url: true,
-    type: "upload",
-    expires_at: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hora de validade
-  });
-
-  console.log("🔒 URL assinada para teste:", signedUrl);
-
-  fs.unlinkSync(filePath);
-}
-
-
-
-    // Criação no banco
+    // Cria o registro no banco
     const certificado = await Certificado.create({
       nomeAluno,
       cpfAluno: cpfAluno.replace(/\D/g, ""),
@@ -63,7 +58,7 @@ if (req.file) {
       universidadeId,
     });
 
-    console.log("✅ Certificado salvo no banco:", certificado);
+    console.log("✅ Certificado criado:", certificado);
     res.status(201).json(certificado);
 
   } catch (err) {
@@ -71,7 +66,6 @@ if (req.file) {
     res.status(400).json({ error: err.message });
   }
 };
-
 
 
 
