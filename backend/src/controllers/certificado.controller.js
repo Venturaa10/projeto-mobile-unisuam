@@ -1,6 +1,8 @@
 import { Certificado, Universidade } from "../initModels.js";
 import cloudinary from "../config/cloudinary.js";
-import streamifier from "streamifier";
+import fs from "fs";
+import path from "path";
+
 
 // Criar certificado
 export const criarCertificado = async (req, res) => {
@@ -9,32 +11,19 @@ export const criarCertificado = async (req, res) => {
 
     let arquivoUrl = null;
 
-    if (req.file && req.file.buffer) {
-      const streamUpload = (buffer) => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            {
-              folder: "certificados",
-              resource_type: "raw", // garante que PDF não seja tratado como imagem
-              type: "upload",
-              flags: "attachment:false", // permite abrir direto no navegador
-              public_id: `${Date.now()}-${req.file.originalname
-                .replace(/\s+/g, "_")          // substitui espaços por "_"
-                .replace(/[^\w\-\.]/g, "")}`   // mantém caracteres válidos e o ponto da extensão
+    if (req.file) {
+      const filePath = req.file.path; // caminho do arquivo temporário
 
-            },
-            (error, result) => {
-              if (result) resolve(result);
-              else reject(error);
-            }
-          );
+      const result = await cloudinary.uploader.upload(filePath, {
+        folder: "certificados",
+        resource_type: "raw",       // garante PDF
+        public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, "_")}`,
+        flags: "attachment:false",  // permite abrir direto no navegador
+      });
 
+      // Deleta o arquivo temporário após upload
+      fs.unlinkSync(filePath);
 
-          streamifier.createReadStream(buffer).pipe(stream);
-        });
-      };
-
-      const result = await streamUpload(req.file.buffer);
       arquivoUrl = result.secure_url;
     }
 
@@ -48,10 +37,9 @@ export const criarCertificado = async (req, res) => {
       universidadeId,
     });
 
-    console.log("✅ Certificado criado:", certificado);
     res.status(201).json(certificado);
   } catch (err) {
-    console.error("❌ Erro ao criar certificado:", err);
+    console.error("Erro ao criar certificado:", err);
     res.status(400).json({ error: err.message });
   }
 };
