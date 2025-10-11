@@ -3,40 +3,37 @@ import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
 
 // Criar certificado
+import fs from "fs";
+import { Certificado } from "../initModels.js";
+import cloudinary from "../config/cloudinary.js";
+
 export const criarCertificado = async (req, res) => {
   try {
     const { nomeAluno, cpfAluno, matricula, nomeCurso, universidadeId } = req.body;
 
     let arquivoUrl = null;
 
-    if (req.file && req.file.buffer) {
-      const streamUpload = (buffer) => {
-        return new Promise((resolve, reject) => {
-          // gera um public_id seguro
-          const publicId = `${Date.now()}-${req.file.originalname
-            .replace(/\.[^/.]+$/, "")      // remove a extensão do nome original
-            .replace(/\s+/g, "_")          // espaços → underline
-            .replace(/[^\w\-]/g, "")}`;    // remove caracteres especiais
+    if (req.file) {
+      const filePath = req.file.path; // caminho do arquivo temporário
 
-          const stream = cloudinary.uploader.upload_stream(
-            {
-              folder: "certificados",
-              resource_type: "raw", // garante que PDF não seja tratado como imagem
-              flags: "attachment:false", // abre direto no navegador
-              public_id: publicId,
-            },
-            (error, result) => {
-              if (result) resolve(result);
-              else reject(error);
-            }
-          );
+      // gera um public_id seguro
+      const publicId = `${Date.now()}-${req.file.originalname
+        .replace(/\.[^/.]+$/, "")   // remove a extensão
+        .replace(/\s+/g, "_")       // espaços → underline
+        .replace(/[^\w\-]/g, "")}`; // remove caracteres especiais
 
-          streamifier.createReadStream(buffer).pipe(stream);
-        });
-      };
+      // envia para o Cloudinary
+      const result = await cloudinary.uploader.upload(filePath, {
+        folder: "certificados",
+        resource_type: "raw",   // garante que seja tratado como PDF
+        public_id: publicId,
+        flags: "attachment:false", // abre direto no navegador
+      });
 
-      const result = await streamUpload(req.file.buffer);
       arquivoUrl = result.secure_url;
+
+      // deleta o arquivo temporário
+      fs.unlinkSync(filePath);
     }
 
     const certificado = await Certificado.create({
@@ -56,6 +53,7 @@ export const criarCertificado = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
 
 
 // Listar certificados por CPF
