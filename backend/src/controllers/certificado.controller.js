@@ -19,9 +19,9 @@ export const criarCertificado = async (req, res) => {
               type: "upload",
               flags: "attachment:false", // permite abrir direto no navegador
               public_id: `${Date.now()}-${req.file.originalname
-                .replace(/\.[^/.]+$/, "")
-                .replace(/\s+/g, "_")
-                .replace(/[^\w\-]/g, "")}`,
+                .replace(/\s+/g, "_")          // substitui espaços por "_"
+                .replace(/[^\w\-\.]/g, "")}`   // mantém caracteres válidos e o ponto da extensão
+
             },
             (error, result) => {
               if (result) resolve(result);
