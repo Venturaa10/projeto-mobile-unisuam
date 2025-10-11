@@ -15,24 +15,21 @@ if (req.file) {
 
   console.log("📥 Nome original do arquivo:", req.file.originalname);
 
-  // Decodifica o nome do arquivo caso venha com %20 ou outras codificações URL
   const originalNameDecoded = decodeURIComponent(req.file.originalname);
   console.log("📄 Nome decodificado:", originalNameDecoded);
 
-  // Gera um public_id seguro e limpo com o nome decodificado
   const publicId = `${Date.now()}-${originalNameDecoded
-    .replace(/\.[^/.]+$/, "")   // remove extensão
-    .replace(/\s+/g, "_")       // espaços -> underline
-    .replace(/[^\w\-]/g, "")}`; // remove caracteres especiais
+    .replace(/\.[^/.]+$/, "")
+    .replace(/\s+/g, "_")
+    .replace(/[^\w\-]/g, "")}`;
 
   console.log("🆔 public_id gerado:", publicId);
 
-  // Upload para o Cloudinary
   const result = await cloudinary.uploader.upload(filePath, {
     folder: "certificados",
     resource_type: "raw",
     public_id: publicId,
-    type: "upload", // garante acesso público
+    type: "upload",
   });
 
   console.log("🔗 secure_url retornado do Cloudinary:", result.secure_url);
@@ -40,11 +37,19 @@ if (req.file) {
 
   arquivoUrl = result.secure_url;
 
-  console.log("📝 URL atribuída para salvar no banco:", arquivoUrl);
+  // Gera URL assinada para teste, que vai funcionar mesmo com restrição de acesso
+  const signedUrl = cloudinary.url(publicId, {
+    resource_type: "raw",
+    sign_url: true,
+    type: "upload",
+    expires_at: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hora de validade
+  });
 
-  // Remove o arquivo temporário
+  console.log("🔒 URL assinada para teste:", signedUrl);
+
   fs.unlinkSync(filePath);
 }
+
 
 
     // Criação no banco
