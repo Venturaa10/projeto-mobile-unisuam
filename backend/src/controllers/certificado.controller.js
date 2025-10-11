@@ -24,6 +24,9 @@ export const criarCertificado = async (req, res) => {
   // Lê o arquivo como Buffer
   const fileBuffer = fs.readFileSync(filePath);
 
+console.log("SUPABASE_URL:", process.env.SUPABASE_URL);
+console.log("SUPABASE_KEY:", process.env.SUPABASE_KEY ? "OK" : "Missing");
+
   // Faz o upload para o bucket "certificados"
   const { data, error: uploadError } = await supabase
     .storage
@@ -31,6 +34,8 @@ export const criarCertificado = async (req, res) => {
     .upload(fileName, fileBuffer, {
       contentType: "application/pdf",
     });
+
+console.log("Buckets:", data, "Error:", uploadError);
 
   // Apaga o arquivo temporário
   fs.unlinkSync(filePath);
