@@ -30,7 +30,7 @@ console.log("SUPABASE_KEY:", process.env.SUPABASE_KEY ? "OK" : "Missing");
   // Faz o upload para o bucket "certificados"
   const { data, error: uploadError } = await supabase
     .storage
-    .from("Certificados")
+    .from("certificados")
     .upload(fileName, fileBuffer, {
       contentType: "application/pdf",
     });
@@ -48,7 +48,7 @@ console.log("Buckets:", data, "Error:", uploadError);
   // Gera a URL pública do arquivo
   const { data: publicUrl } = supabase
     .storage
-    .from("Certificados")
+    .from("certificados")
     .getPublicUrl(fileName);
 
   arquivoUrl = publicUrl.publicUrl;
