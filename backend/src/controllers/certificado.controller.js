@@ -10,37 +10,42 @@ export const criarCertificado = async (req, res) => {
 
     let arquivoUrl = null;
 
-    if (req.file) {
-      const filePath = req.file.path;
+if (req.file) {
+  const filePath = req.file.path;
 
-      console.log("📥 Nome original do arquivo:", req.file.originalname);
+  console.log("📥 Nome original do arquivo:", req.file.originalname);
 
-      // Gera um public_id seguro e limpo
-      const publicId = `${Date.now()}-${req.file.originalname
-        .replace(/\.[^/.]+$/, "")   // remove extensão
-        .replace(/\s+/g, "_")       // espaços -> underline
-        .replace(/[^\w\-]/g, "")}`; // remove caracteres especiais
+  // Decodifica o nome do arquivo caso venha com %20 ou outras codificações URL
+  const originalNameDecoded = decodeURIComponent(req.file.originalname);
+  console.log("📄 Nome decodificado:", originalNameDecoded);
 
-      console.log("🆔 public_id gerado:", publicId);
+  // Gera um public_id seguro e limpo com o nome decodificado
+  const publicId = `${Date.now()}-${originalNameDecoded
+    .replace(/\.[^/.]+$/, "")   // remove extensão
+    .replace(/\s+/g, "_")       // espaços -> underline
+    .replace(/[^\w\-]/g, "")}`; // remove caracteres especiais
 
-      // Upload para o Cloudinary
-      const result = await cloudinary.uploader.upload(filePath, {
-        folder: "certificados",
-        resource_type: "raw",
-        public_id: publicId,
-        type: "upload", // garante acesso público
-      });
+  console.log("🆔 public_id gerado:", publicId);
 
-      console.log("🔗 secure_url retornado do Cloudinary:", result.secure_url);
-      console.log("📁 Caminho completo salvo no Cloudinary:", result.public_id);
+  // Upload para o Cloudinary
+  const result = await cloudinary.uploader.upload(filePath, {
+    folder: "certificados",
+    resource_type: "raw",
+    public_id: publicId,
+    type: "upload", // garante acesso público
+  });
 
-      arquivoUrl = result.secure_url;
+  console.log("🔗 secure_url retornado do Cloudinary:", result.secure_url);
+  console.log("📁 Caminho completo salvo no Cloudinary:", result.public_id);
 
-      console.log("📝 URL atribuída para salvar no banco:", arquivoUrl);
+  arquivoUrl = result.secure_url;
 
-      // Remove o arquivo temporário
-      fs.unlinkSync(filePath);
-    }
+  console.log("📝 URL atribuída para salvar no banco:", arquivoUrl);
+
+  // Remove o arquivo temporário
+  fs.unlinkSync(filePath);
+}
+
 
     // Criação no banco
     const certificado = await Certificado.create({
