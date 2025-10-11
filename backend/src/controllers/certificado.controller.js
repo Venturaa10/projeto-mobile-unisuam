@@ -43,7 +43,7 @@ export const criarCertificado = async (req, res) => {
   // Gera a URL pública do arquivo
   const { data: publicUrl } = supabase
     .storage
-    .from("certificados")
+    .from("Certificados")
     .getPublicUrl(fileName);
 
   arquivoUrl = publicUrl.publicUrl;
