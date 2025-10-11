@@ -9,21 +9,23 @@ export const criarCertificado = async (req, res) => {
 
     let arquivoUrl = null;
 
-    // Upload para Cloudinary via buffer
     if (req.file && req.file.buffer) {
       const streamUpload = (buffer) => {
         return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: "certificados",
-            resource_type: "raw", // PDF/documento
-            public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, "")}` // mantém nome + timestamp
-          },
-          (error, result) => {
-            if (result) resolve(result);
-            else reject(error);
-          }
-        );
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: "certificados",
+              resource_type: "auto", // ✅ Detecta tipo automaticamente (PDF incluído)
+              public_id: `${Date.now()}-${req.file.originalname
+                .replace(/\.[^/.]+$/, "")
+                .replace(/\s+/g, "_")
+                .replace(/[^\w\-]/g, "")}`,
+            },
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
+            }
+          );
 
           streamifier.createReadStream(buffer).pipe(stream);
         });
