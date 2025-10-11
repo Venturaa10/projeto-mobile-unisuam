@@ -15,7 +15,9 @@ export const criarCertificado = async (req, res) => {
           const stream = cloudinary.uploader.upload_stream(
             {
               folder: "certificados",
-              resource_type: "auto", // ✅ Detecta tipo automaticamente (PDF incluído)
+              resource_type: "raw", // garante que PDF não seja tratado como imagem
+              type: "upload",
+              flags: "attachment:false", // permite abrir direto no navegador
               public_id: `${Date.now()}-${req.file.originalname
                 .replace(/\.[^/.]+$/, "")
                 .replace(/\s+/g, "_")
@@ -26,6 +28,7 @@ export const criarCertificado = async (req, res) => {
               else reject(error);
             }
           );
+
 
           streamifier.createReadStream(buffer).pipe(stream);
         });
