@@ -11,24 +11,29 @@ export const criarCertificado = async (req, res) => {
 
     let arquivoUrl = null;
 
-if (req.file) {
-  const filePath = req.file.path;
+    if (req.file) {
+      const filePath = req.file.path;
 
-  // copia para teste
-  fs.copyFileSync(filePath, "uploads/teste_local.pdf");
-  console.log("PDF salvo localmente para teste!");
+      // Caminho absoluto para src/uploads/teste_local.pdf
+      const localPath = path.resolve("src/uploads/teste_local.pdf");
 
-  const result = await cloudinary.uploader.upload(filePath, {
-    folder: "certificados",
-    resource_type: "raw",
-    public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, "_")}`,
-    flags: "attachment:false",
-  });
+      // copia para teste
+      fs.copyFileSync(filePath, localPath);
+      console.log("PDF salvo localmente para teste em:", localPath);
 
-  fs.unlinkSync(filePath);
-  arquivoUrl = result.secure_url;
-}
+      // envia para Cloudinary
+      const result = await cloudinary.uploader.upload(filePath, {
+        folder: "certificados",
+        resource_type: "raw",       // garante que seja tratado como PDF
+        public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, "_")}`,
+        flags: "attachment:false",  // permite abrir direto no navegador
+      });
 
+      // deleta arquivo temporário
+      fs.unlinkSync(filePath);
+
+      arquivoUrl = result.secure_url;
+    }
 
     const certificado = await Certificado.create({
       nomeAluno,
