@@ -9,43 +9,47 @@ export const criarCertificado = async (req, res) => {
 
     let arquivoUrl = null;
 
-    if (req.file) {
-      const filePath = req.file.path;
-      const originalNameDecoded = decodeURIComponent(req.file.originalname);
+   if (req.file) {
+  const filePath = req.file.path;
+  const originalNameDecoded = decodeURIComponent(req.file.originalname);
 
-      // Gera um nome seguro para o arquivo no Supabase
-      const fileName = `${Date.now()}-${originalNameDecoded
-        .replace(/\.[^/.]+$/, "")
-        .replace(/\s+/g, "_")
-        .replace(/[^\w\-]/g, "")}.pdf`; // adiciona a extensão .pdf explicitamente
+  // Gera um nome seguro para o arquivo no Supabase
+  const fileName = `${Date.now()}-${originalNameDecoded
+    .replace(/\.[^/.]+$/, "")
+    .replace(/\s+/g, "_")
+    .replace(/[^\w\-]/g, "")}.pdf`; // adiciona a extensão .pdf explicitamente
 
-      console.log("📄 Nome do arquivo para upload:", fileName);
+  console.log("📄 Nome do arquivo para upload:", fileName);
 
-      // Faz o upload para o bucket "certificados"
-      const { data, error: uploadError } = await supabase
-        .storage
-        .from("certificados")
-        .upload(fileName, fs.createReadStream(filePath), {
-          contentType: "application/pdf",
-        });
+  // Lê o arquivo como Buffer
+  const fileBuffer = fs.readFileSync(filePath);
 
-      // Apaga o arquivo temporário
-      fs.unlinkSync(filePath);
+  // Faz o upload para o bucket "certificados"
+  const { data, error: uploadError } = await supabase
+    .storage
+    .from("certificados")
+    .upload(fileName, fileBuffer, {
+      contentType: "application/pdf",
+    });
 
-      if (uploadError) {
-        console.error("❌ Erro ao enviar arquivo para Supabase:", uploadError.message);
-        return res.status(500).json({ error: uploadError.message });
-      }
+  // Apaga o arquivo temporário
+  fs.unlinkSync(filePath);
 
-      // Gera a URL pública do arquivo
-      const { data: publicUrl } = supabase
-        .storage
-        .from("certificados")
-        .getPublicUrl(fileName);
+  if (uploadError) {
+    console.error("❌ Erro ao enviar arquivo para Supabase:", uploadError.message);
+    return res.status(500).json({ error: uploadError.message });
+  }
 
-      arquivoUrl = publicUrl.publicUrl;
-      console.log("🔗 URL pública gerada:", arquivoUrl);
-    }
+  // Gera a URL pública do arquivo
+  const { data: publicUrl } = supabase
+    .storage
+    .from("certificados")
+    .getPublicUrl(fileName);
+
+  arquivoUrl = publicUrl.publicUrl;
+  console.log("🔗 URL pública gerada:", arquivoUrl);
+}
+
 
     // Cria o registro no banco
     const certificado = await Certificado.create({
