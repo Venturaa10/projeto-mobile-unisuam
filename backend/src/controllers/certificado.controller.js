@@ -12,6 +12,10 @@ export const criarCertificado = async (req, res) => {
     let arquivoUrl = null;
 
     if (req.file) {
+      // SALVA O PDF LOCALMENTE PARA TESTE
+      fs.writeFileSync("uploads/teste_local.pdf", req.file.buffer); 
+      console.log("PDF salvo localmente para teste!");
+
       const filePath = req.file.path; // caminho do arquivo temporário
 
       const result = await cloudinary.uploader.upload(filePath, {
