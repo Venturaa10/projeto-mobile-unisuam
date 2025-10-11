@@ -30,7 +30,7 @@ console.log("SUPABASE_KEY:", process.env.SUPABASE_KEY ? "OK" : "Missing");
   // Faz o upload para o bucket "certificados"
   const { data, error: uploadError } = await supabase
     .storage
-    .from("certificados")
+    .from("Certificados")
     .upload(fileName, fileBuffer, {
       contentType: "application/pdf",
     });
