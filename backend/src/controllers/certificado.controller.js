@@ -1,11 +1,8 @@
 import { Certificado, Universidade } from "../initModels.js";
 import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
-
-// Criar certificado
 import fs from "fs";
-import { Certificado } from "../initModels.js";
-import cloudinary from "../config/cloudinary.js";
+
 
 export const criarCertificado = async (req, res) => {
   try {
