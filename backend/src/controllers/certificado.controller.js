@@ -20,12 +20,14 @@ export const criarCertificado = async (req, res) => {
         .replace(/[^\w\-]/g, "")}`; // remove caracteres especiais
 
       // envia para o Cloudinary
-      const result = await cloudinary.uploader.upload(filePath, {
-        folder: "certificados",
-        resource_type: "raw",   // garante que seja tratado como PDF
-        public_id: publicId,
-        flags: "attachment:false", // abre direto no navegador
-      });
+        const result = await cloudinary.uploader.upload(filePath, {
+          folder: "certificados",
+          resource_type: "raw",
+          public_id: publicId,
+          flags: "attachment:false",
+          type: "upload", // garante que o arquivo seja público
+        });
+
 
       arquivoUrl = result.secure_url;
 
