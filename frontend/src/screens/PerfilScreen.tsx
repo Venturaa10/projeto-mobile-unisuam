@@ -189,6 +189,7 @@ if (token) await AsyncStorage.setItem("token", token); // regrava só pra garant
         onChangeText={setNome}
         placeholder={userType === "aluno" ? "Nome Completo" : "Nome da Instituição"}
         maxLength={50}
+        placeholderTextColor={"#999"}
       />
 
       {/* Email */}
@@ -199,6 +200,7 @@ if (token) await AsyncStorage.setItem("token", token); // regrava só pra garant
         placeholder="Email"
         keyboardType="email-address"
         maxLength={50}
+        placeholderTextColor={"#999"}
       />
 
 {/* CPF/CNPJ */}

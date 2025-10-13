@@ -87,6 +87,7 @@ const handleLogin = async () => {
         value={login}
         onChangeText={setLogin}
         maxLength={50}
+        placeholderTextColor={"#999"}
       />
 
       <TextInput
@@ -96,6 +97,7 @@ const handleLogin = async () => {
         onChangeText={setSenha}
         secureTextEntry
         maxLength={25}
+        placeholderTextColor={"#999"}
       />
 
       <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>

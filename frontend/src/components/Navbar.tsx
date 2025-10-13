@@ -56,8 +56,8 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
     if (!tipo) {
       return (
         <>
-          <Button title="Login" onPress={() => { setMenuOpen(false); navigation.navigate("Login"); }} />
-          <Button title="Cadastro" onPress={() => { setMenuOpen(false); navigation.navigate("Cadastro"); }} />
+          <Button title="Entrar" onPress={() => { setMenuOpen(false); navigation.navigate("Login"); }} />
+          <Button title="Cadastrar" onPress={() => { setMenuOpen(false); navigation.navigate("Cadastro"); }} />
         </>
       );
     }
@@ -69,7 +69,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
             setMenuOpen(false);
             if (usuario) navigation.navigate("Perfil", { userType: "aluno", userId: usuario.id });
           }} />
-          <Button title="Logout" onPress={handleLogout} />
+          <Button title="Sair" onPress={handleLogout} />
         </>
       );
     }
@@ -81,7 +81,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
             setMenuOpen(false);
             if (usuario) navigation.navigate("Perfil", { userType: "universidade", userId: usuario.id });
           }} />
-          <Button title="Logout" onPress={handleLogout} />
+          <Button title="Sair" onPress={handleLogout} />
         </>
       );
     }

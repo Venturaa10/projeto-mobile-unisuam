@@ -89,7 +89,7 @@ const CadastroScreen: React.FC = () => {
 
   return (
       <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Cadastro</Text>
+      <Text style={styles.title}>Cadastrar</Text>
 
       {/* Seletor de tipo */}
       <View style={styles.selector}>
@@ -111,6 +111,7 @@ const CadastroScreen: React.FC = () => {
       <TextInput
         style={styles.input}
         placeholder={userType === "aluno" ? "Nome Completo" : "Nome da Instituição/Universidade"}
+        placeholderTextColor={"#999"}
         value={nome}
         onChangeText={setNome}
         maxLength={50}
@@ -121,6 +122,7 @@ const CadastroScreen: React.FC = () => {
         type={userType === "aluno" ? "cpf" : "cnpj"}
         style={styles.input}
         placeholder={userType === "aluno" ? "CPF" : "CNPJ"}
+        placeholderTextColor={"#999"}
         value={cpfCnpj}
         onChangeText={setCpfCnpj}
       />
@@ -133,6 +135,7 @@ const CadastroScreen: React.FC = () => {
         onChangeText={setEmail}
         keyboardType="email-address"
         maxLength={50}
+        placeholderTextColor={"#999"}
       />
 
       {/* Senha */}
@@ -144,6 +147,7 @@ const CadastroScreen: React.FC = () => {
           onChangeText={setSenha}
           secureTextEntry={!mostrarSenha}
           maxLength={25}
+          placeholderTextColor={"#999"}
         />
         <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
           <Ionicons name={mostrarSenha ? "eye-off" : "eye"} size={24} color="gray" />
@@ -159,6 +163,7 @@ const CadastroScreen: React.FC = () => {
           onChangeText={setConfirmarSenha}
           secureTextEntry={!mostrarConfirmarSenha}
           maxLength={25}
+          placeholderTextColor={"#999"}
         />
         <TouchableOpacity onPress={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}>
           <Ionicons name={mostrarConfirmarSenha ? "eye-off" : "eye"} size={24} color="gray" />

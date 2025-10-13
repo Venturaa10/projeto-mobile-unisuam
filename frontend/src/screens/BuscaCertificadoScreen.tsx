@@ -72,6 +72,7 @@ const BuscaCertificadoScreen: React.FC = () => {
     maxLength={11}
     keyboardType="numeric"
     onChangeText={setCpf}
+    placeholderTextColor={"#999"}
   />
 
   <TouchableOpacity style={styles.button} onPress={handleBuscar}>

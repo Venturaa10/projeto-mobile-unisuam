@@ -145,6 +145,7 @@ const RegistraCertificadoScreen: React.FC = () => {
         value={nomeAluno}
         onChangeText={setNomeAluno}
         maxLength={50}
+        placeholderTextColor={"#999"}
       />
 
       <TextInput
@@ -154,6 +155,7 @@ const RegistraCertificadoScreen: React.FC = () => {
         value={cpfAluno}
         onChangeText={(text) => setCpfAluno(formatCPF(text))}
         maxLength={14}
+        placeholderTextColor={"#999"}
       />
 
       <TextInput
@@ -162,6 +164,8 @@ const RegistraCertificadoScreen: React.FC = () => {
         value={matricula}
         onChangeText={setMatricula}
         maxLength={15}
+        placeholderTextColor={"#999"}
+
       />
 
       <TextInput
@@ -170,6 +174,7 @@ const RegistraCertificadoScreen: React.FC = () => {
         value={nomeCurso}
         onChangeText={setNomeCurso}
         maxLength={50}
+        placeholderTextColor={"#999"}
       />
 
       <TouchableOpacity style={styles.uploadBtn} onPress={handleSelectPdf}>
