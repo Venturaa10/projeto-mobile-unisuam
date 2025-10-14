@@ -14,6 +14,9 @@ Backend: npm run dev ou npx nodemon server.js
 
 Frontend: npm start
 
+Buildar apk para android:
+run -> eas build -p android --profile preview
+
 
 
 
