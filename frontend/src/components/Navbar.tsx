@@ -52,40 +52,55 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
     }
   };
 
-  const renderMenuItems = () => {
-    if (!tipo) {
-      return (
-        <>
-          <Button title="Entrar" onPress={() => { setMenuOpen(false); navigation.navigate("Login"); }} />
-          <Button title="Cadastrar" onPress={() => { setMenuOpen(false); navigation.navigate("Cadastro"); }} />
-        </>
-      );
-    }
-    if (tipo === "aluno") {
-      return (
-        <>
-          <Button title="Meus Certificados" onPress={() => { setMenuOpen(false); navigation.navigate("MeusCertificados"); }} />
-          <Button title="Perfil" onPress={() => {
+const renderMenuItems = () => {
+  const MenuButton = ({ title, onPress }: { title: string; onPress: () => void }) => (
+    <TouchableOpacity style={styles.menuButton} onPress={onPress}>
+      <Text style={styles.menuButtonText}>{title}</Text>
+    </TouchableOpacity>
+  );
+
+  if (!tipo) {
+    return (
+      <>
+        <MenuButton title="Entrar" onPress={() => { setMenuOpen(false); navigation.navigate("Login"); }} />
+        <MenuButton title="Cadastrar" onPress={() => { setMenuOpen(false); navigation.navigate("Cadastro"); }} />
+      </>
+    );
+  }
+
+  if (tipo === "aluno") {
+    return (
+      <>
+        <MenuButton title="Meus Certificados" onPress={() => { setMenuOpen(false); navigation.navigate("MeusCertificados"); }} />
+        <MenuButton
+          title="Perfil"
+          onPress={() => {
             setMenuOpen(false);
             if (usuario) navigation.navigate("Perfil", { userType: "aluno", userId: usuario.id });
-          }} />
-          <Button title="Sair" onPress={handleLogout} />
-        </>
-      );
-    }
-    if (tipo === "universidade") {
-      return (
-        <>
-          <Button title="Registrar Certificado" onPress={() => { setMenuOpen(false); navigation.navigate("RegistraCertificado"); }} />
-          <Button title="Perfil" onPress={() => {
+          }}
+        />
+        <MenuButton title="Sair" onPress={handleLogout} />
+      </>
+    );
+  }
+
+  if (tipo === "universidade") {
+    return (
+      <>
+        <MenuButton title="Registrar Certificado" onPress={() => { setMenuOpen(false); navigation.navigate("RegistraCertificado"); }} />
+        <MenuButton
+          title="Perfil"
+          onPress={() => {
             setMenuOpen(false);
             if (usuario) navigation.navigate("Perfil", { userType: "universidade", userId: usuario.id });
-          }} />
-          <Button title="Sair" onPress={handleLogout} />
-        </>
-      );
-    }
-  };
+          }}
+        />
+        <MenuButton title="Sair" onPress={handleLogout} />
+      </>
+    );
+  }
+};
+
 
   return (
     <View style={styles.container}>
@@ -98,7 +113,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
           }}
           style={styles.appRow}
         >
-          <Text style={styles.title}>Meu App</Text>
+          <Text style={styles.title}>Achievements</Text>
           {/* {usuario && (
             <Image
               source={
@@ -132,7 +147,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: "#4f46e5",
+    backgroundColor: "#374151", // cinza escuro
     paddingVertical: 12,
     paddingHorizontal: 16,
     elevation: 5,
@@ -143,33 +158,61 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  title: { color: "#fff", fontWeight: "bold", fontSize: 20 },
-  hamburger: { padding: 5 },
+  title: { 
+    color: "#f9fafb", // quase branco
+    fontWeight: "bold", 
+    fontSize: 20 
+  },
+  hamburger: { 
+    padding: 5 
+  },
   menuOverlay: {
     position: "absolute",
-    top: 0, left: 0,
-    width, height,
+    top: 0, 
+    left: 0,
+    width, 
+    height,
     zIndex: 999,
     justifyContent: "flex-start",
     alignItems: "flex-end",
     paddingTop: 60,
     paddingRight: 16,
+    backgroundColor: "rgba(0,0,0,0.3)" // overlay semitransparente
   },
   menu: {
-    backgroundColor: "#3730a3",
+    backgroundColor: "#1f2937", // cinza escuro ainda mais forte para o menu
     borderRadius: 8,
     padding: 10,
     flexDirection: "column",
     elevation: 6,
   },
-  appRow: { flexDirection: "row", alignItems: "center" },
+  appRow: { 
+    flexDirection: "row", 
+    alignItems: "center" 
+  },
   profileImage: {
-    width: 32, height: 32,
+    width: 32, 
+    height: 32,
     borderRadius: 16,
     marginLeft: 8,
     borderWidth: 1,
-    borderColor: "#fff",
+    borderColor: "#f9fafb" // borda quase branca para contraste
   },
+menuButton: {
+  backgroundColor: "#ffffffff",
+  paddingVertical: 12,
+  paddingHorizontal: 16,
+  borderRadius: 8,
+  marginBottom: 10,
+},
+menuButtonText: {
+  color: "#000000ff",
+  fontSize: 16,
+  textAlign: "center",
+},
+
+
 });
+
 
 export default Navbar;

@@ -115,18 +115,73 @@ const handleLogin = async () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 20 },
-  title: { fontSize: 28, fontWeight: "bold", textAlign: "center", marginBottom: 30 },
-  selector: { flexDirection: "row", justifyContent: "center", marginBottom: 20 },
-  option: { padding: 10, borderWidth: 1, borderColor: "#ccc", marginHorizontal: 5, borderRadius: 5 },
-  selectedOption: { backgroundColor: "#4f46e5", borderColor: "#4f46e5" },
-  optionText: { color: "#000" },
-  selectedText: { color: "#fff", fontWeight: "bold" },
-  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 10, marginBottom: 15 },
-  button: { backgroundColor: "#4f46e5", padding: 15, borderRadius: 5, alignItems: "center", marginBottom: 10 },
-  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-  registerButton: { alignItems: "center", marginTop: 10 },
-  registerText: { color: "#4f46e5", fontWeight: "bold" },
+  container: { 
+    flex: 1, 
+    justifyContent: "center", 
+    padding: 20, 
+    backgroundColor: "#ffffff" // fundo branco
+  },
+  title: { 
+    fontSize: 28, 
+    fontWeight: "bold", 
+    textAlign: "center", 
+    marginBottom: 30,
+    color: "#1f2937" // cinza escuro
+  },
+  selector: { 
+    flexDirection: "row", 
+    justifyContent: "center", 
+    marginBottom: 20 
+  },
+  option: { 
+    padding: 10, 
+    borderWidth: 1, 
+    borderColor: "#9ca3af", // cinza médio
+    marginHorizontal: 5, 
+    borderRadius: 5,
+    backgroundColor: "#f3f4f6" // leve cinza de fundo
+  },
+  selectedOption: { 
+    backgroundColor: "#374151", // cinza escuro
+    borderColor: "#374151"
+  },
+  optionText: { 
+    color: "#1f2937" // cinza escuro
+  },
+  selectedText: { 
+    color: "#f9fafb", // quase branco
+    fontWeight: "bold" 
+  },
+  input: { 
+    borderWidth: 1, 
+    borderColor: "#9ca3af", // cinza médio
+    borderRadius: 5, 
+    padding: 10, 
+    marginBottom: 15, 
+    backgroundColor: "#f3f4f6", // leve cinza de fundo
+    color: "#111827" // texto escuro
+  },
+  button: { 
+    backgroundColor: "#374151", // cinza escuro
+    padding: 15, 
+    borderRadius: 5, 
+    alignItems: "center", 
+    marginBottom: 10 
+  },
+  buttonText: { 
+    color: "#f9fafb", 
+    fontWeight: "bold", 
+    fontSize: 16 
+  },
+  registerButton: { 
+    alignItems: "center", 
+    marginTop: 10 
+  },
+  registerText: { 
+    color: "#374151", // cinza escuro
+    fontWeight: "bold" 
+  },
 });
+
 
 export default LoginScreen;

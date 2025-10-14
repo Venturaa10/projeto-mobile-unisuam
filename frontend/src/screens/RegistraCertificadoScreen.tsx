@@ -195,33 +195,51 @@ const RegistraCertificadoScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f9fafb" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
+  container: { 
+    flex: 1, 
+    padding: 20, 
+    backgroundColor: "#ffffff" // fundo branco
+  },
+  title: { 
+    fontSize: 22, 
+    fontWeight: "bold", 
+    marginBottom: 20,
+    color: "#1f2937" // cinza escuro
+  },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#9ca3af", // cinza médio
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#f3f4f6", // leve cinza de fundo
+    color: "#111827" // texto escuro
   },
   uploadBtn: {
     borderWidth: 1,
-    borderColor: "#4f46e5",
+    borderColor: "#374151", // cinza escuro
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
-    backgroundColor: "#eef2ff",
+    backgroundColor: "#e5e7eb", // cinza bem claro
     alignItems: "center",
   },
-  uploadText: { color: "#4f46e5", fontWeight: "600" },
+  uploadText: { 
+    color: "#374151", // cinza escuro
+    fontWeight: "600" 
+  },
   submitBtn: {
-    backgroundColor: "#4f46e5",
+    backgroundColor: "#374151", // cinza escuro
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
   },
-  submitText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  submitText: { 
+    color: "#f9fafb", // quase branco
+    fontWeight: "bold", 
+    fontSize: 16 
+  },
 });
+
 
 export default RegistraCertificadoScreen;

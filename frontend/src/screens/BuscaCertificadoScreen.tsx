@@ -93,15 +93,62 @@ const BuscaCertificadoScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, padding: 20, backgroundColor: "#f9fafb" },
-  title: { fontSize: 26, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
-  input: { borderWidth: 1, borderColor: "#d1d5db", borderRadius: 8, padding: 12, marginBottom: 20, backgroundColor: "#fff", fontSize: 16 },
-  button: { backgroundColor: "#4f46e5", paddingVertical: 14, borderRadius: 8, alignItems: "center" },
-  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 18 },
-  card: { backgroundColor: "#fff", padding: 16, borderRadius: 8, marginBottom: 12 },
-  curso: { fontSize: 16, fontWeight: "bold" },
-  botao: { marginTop: 10, backgroundColor: "#4f46e5", padding: 10, borderRadius: 6, alignItems: "center" },
-  botaoTexto: { color: "#fff", fontWeight: "bold" },
+  container: { 
+    flexGrow: 1, 
+    padding: 20, 
+    backgroundColor: "#ffffff" // fundo branco
+  },
+  title: { 
+    fontSize: 26, 
+    fontWeight: "bold", 
+    marginBottom: 20, 
+    textAlign: "center",
+    color: "#1f2937" // cinza escuro
+  },
+  input: { 
+    borderWidth: 1, 
+    borderColor: "#9ca3af", // cinza médio
+    borderRadius: 8, 
+    padding: 12, 
+    marginBottom: 20, 
+    backgroundColor: "#f3f4f6", // leve cinza de fundo
+    fontSize: 16,
+    color: "#111827" // texto mais escuro
+  },
+  button: { 
+    backgroundColor: "#374151", // cinza escuro para botão
+    paddingVertical: 14, 
+    borderRadius: 8, 
+    alignItems: "center" 
+  },
+  buttonText: { 
+    color: "#f9fafb", // quase branco para contraste
+    fontWeight: "bold", 
+    fontSize: 18 
+  },
+  card: { 
+    backgroundColor: "#f3f4f6", // cinza claro para cards
+    padding: 16, 
+    borderRadius: 8, 
+    marginBottom: 12 
+  },
+  curso: { 
+    fontSize: 16, 
+    fontWeight: "bold",
+    color: "#1f2937" // cinza escuro
+  },
+  botao: { 
+    marginTop: 10, 
+    backgroundColor: "#4b5563", // cinza escuro alternativo
+    padding: 10, 
+    borderRadius: 6, 
+    alignItems: "center" 
+  },
+  botaoTexto: { 
+    color: "#f9fafb", 
+    fontWeight: "bold" 
+  },
 });
+
 
 export default BuscaCertificadoScreen;

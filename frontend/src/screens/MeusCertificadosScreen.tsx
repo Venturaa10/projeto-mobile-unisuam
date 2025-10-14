@@ -135,30 +135,53 @@ const BASE_URL = "https://projeto-mobile-unisuam.onrender.com";
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  emptyText: { fontSize: 16, color: "#666" },
-  list: { padding: 16 },
+  center: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center" 
+  },
+  emptyText: { 
+    fontSize: 16, 
+    color: "#9ca3af" // cinza médio para texto vazio
+  },
+  list: { 
+    padding: 16 
+  },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#f3f4f6", // leve cinza de fundo
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
-  curso: { fontSize: 16, fontWeight: "bold", color: "#111" },
-  data: { fontSize: 14, color: "#555", marginTop: 4 },
-  universidade: { fontSize: 14, color: "#555" },
+  curso: { 
+    fontSize: 16, 
+    fontWeight: "bold", 
+    color: "#1f2937" // cinza escuro
+  },
+  data: { 
+    fontSize: 14, 
+    color: "#4b5563", // cinza médio escuro
+    marginTop: 4 
+  },
+  universidade: { 
+    fontSize: 14, 
+    color: "#4b5563" 
+  },
   botao: {
     marginTop: 10,
-    backgroundColor: "#4f46e5",
+    backgroundColor: "#374151", // cinza escuro
     padding: 10,
     borderRadius: 6,
     alignItems: "center",
   },
-  botaoTexto: { color: "#fff", fontWeight: "bold" },
+  botaoTexto: { 
+    color: "#f9fafb", // quase branco
+    fontWeight: "bold" 
+  },
   visibilityBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -167,6 +190,6 @@ const styles = StyleSheet.create({
   visibilityText: {
     marginLeft: 8,
     fontSize: 14,
-    color: "#555",
+    color: "#4b5563" // cinza médio escuro
   },
 });

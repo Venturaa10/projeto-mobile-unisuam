@@ -44,6 +44,11 @@ const CadastroScreen: React.FC = () => {
       return;
     }
 
+    if (senha.length < 5) {
+    Alert.alert("Erro", "A senha deve conter no mínimo 5 caracteres");
+    return;
+  }
+
     if (senha !== confirmarSenha) {
       Alert.alert("Erro", "As senhas não coincidem");
       return;
@@ -183,20 +188,91 @@ const CadastroScreen: React.FC = () => {
 
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20 },
-  title: { fontSize: 28, fontWeight: "bold", textAlign: "center", marginBottom: 30 },
-  selector: { flexDirection: "row", justifyContent: "center", marginBottom: 20 },
-  option: { padding: 10, borderWidth: 1, borderColor: "#ccc", marginHorizontal: 5, borderRadius: 5 },
-  selectedOption: { backgroundColor: "#4f46e5", borderColor: "#4f46e5" },
-  optionText: { color: "#000" },
-  selectedText: { color: "#fff", fontWeight: "bold" },
-  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 10, marginBottom: 15, width: "100%" },
-  passwordContainer: { flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: "#ccc", borderRadius: 5, paddingHorizontal: 10, marginBottom: 15, width: "100%" },
-  inputPassword: { flex: 1, paddingVertical: 10 },
-  button: { backgroundColor: "#4f46e5", padding: 15, borderRadius: 5, alignItems: "center", width: "100%" },
-  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
-  link: { marginTop: 15 },
-  linkText: { color: "#4f46e5", fontWeight: "bold", fontSize: 16 },
+  container: { 
+    flexGrow: 1, 
+    justifyContent: "center", 
+    alignItems: "center", 
+    padding: 20, 
+    backgroundColor: "#ffffff" // fundo branco
+  },
+  title: { 
+    fontSize: 28, 
+    fontWeight: "bold", 
+    textAlign: "center", 
+    marginBottom: 30,
+    color: "#1f2937" // cinza escuro
+  },
+  selector: { 
+    flexDirection: "row", 
+    justifyContent: "center", 
+    marginBottom: 20 
+  },
+  option: { 
+    padding: 10, 
+    borderWidth: 1, 
+    borderColor: "#9ca3af", // cinza médio
+    marginHorizontal: 5, 
+    borderRadius: 5,
+    backgroundColor: "#f3f4f6" // leve cinza de fundo
+  },
+  selectedOption: { 
+    backgroundColor: "#374151", // cinza escuro
+    borderColor: "#374151"
+  },
+  optionText: { 
+    color: "#1f2937" // cinza escuro
+  },
+  selectedText: { 
+    color: "#f9fafb", // quase branco
+    fontWeight: "bold" 
+  },
+  input: { 
+    borderWidth: 1, 
+    borderColor: "#9ca3af", // cinza médio
+    borderRadius: 5, 
+    padding: 10, 
+    marginBottom: 15, 
+    width: "100%",
+    backgroundColor: "#f3f4f6", // leve cinza de fundo
+    color: "#111827" // texto escuro
+  },
+  passwordContainer: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    borderWidth: 1, 
+    borderColor: "#9ca3af", // cinza médio
+    borderRadius: 5, 
+    paddingHorizontal: 10, 
+    marginBottom: 15, 
+    width: "100%",
+    backgroundColor: "#f3f4f6" // leve cinza de fundo
+  },
+  inputPassword: { 
+    flex: 1, 
+    paddingVertical: 10,
+    color: "#111827" // texto escuro
+  },
+  button: { 
+    backgroundColor: "#374151", // cinza escuro
+    padding: 15, 
+    borderRadius: 5, 
+    alignItems: "center", 
+    width: "100%" 
+  },
+  buttonText: { 
+    color: "#f9fafb", // quase branco
+    fontWeight: "bold", 
+    fontSize: 16 
+  },
+  link: { 
+    marginTop: 15 
+  },
+  linkText: { 
+    color: "#374151", // cinza escuro
+    fontWeight: "bold", 
+    fontSize: 16 
+  },
 });
+
 
 export default CadastroScreen;
