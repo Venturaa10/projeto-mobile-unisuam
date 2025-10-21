@@ -13,6 +13,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "../services/api";
 import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 export default function MeusCertificadosScreen() {
   const [certificados, setCertificados] = useState<any[]>([]);
@@ -113,7 +114,10 @@ const BASE_URL = "https://projeto-mobile-unisuam.onrender.com";
     style={styles.botao}
     onPress={() => Linking.openURL(item.arquivo)}
   >
-    <Text style={styles.botaoTexto}>📄 Ver Certificado</Text>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+      <FontAwesome5 name="file-alt" size={16} color="#fff" />
+      <Text style={styles.botaoTexto}>Ver Certificado</Text>
+    </View>
   </TouchableOpacity>
 )}
 

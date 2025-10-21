@@ -64,6 +64,7 @@ const renderMenuItems = () => {
       <>
         <MenuButton title="Entrar" onPress={() => { setMenuOpen(false); navigation.navigate("Login"); }} />
         <MenuButton title="Cadastrar" onPress={() => { setMenuOpen(false); navigation.navigate("Cadastro"); }} />
+        <MenuButton title="Sobre" onPress={() => { setMenuOpen(false); navigation.navigate("Sobre"); }} />
       </>
     );
   }
