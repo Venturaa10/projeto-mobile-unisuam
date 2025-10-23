@@ -9,6 +9,11 @@ export default (sequelize, DataTypes) => {
     email: { type: DataTypes.STRING, allowNull: false, unique: true },
     senha: { type: DataTypes.STRING, allowNull: false },
     logo: { type: DataTypes.STRING, allowNull: true },
+
+    cep: { type: DataTypes.STRING, allowNull: true },
+    endereco: { type: DataTypes.STRING, allowNull: true },
+    bairro: { type: DataTypes.STRING, allowNull: true },
+    estado: { type: DataTypes.STRING, allowNull: true },
   }, {
     hooks: {
       beforeCreate: async (uni) => {

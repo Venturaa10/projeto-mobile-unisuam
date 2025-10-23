@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, FlatLi
 import api from "../services/api";
 import { FontAwesome5 } from "@expo/vector-icons";
 
-// const BASE_URL = "http://1.0.11.21:3000"; // Ip do backend no mac no trabalho
+const BASE_URL = "http://1.0.11.21:3000"; // Ip do backend no mac no trabalho
 // const BASE_URL = "http://192.168.1.74:3000";
 // const BASE_URL = "https://projeto-mobile-unisuam.onrender.com";
 
@@ -56,6 +56,11 @@ const BuscaCertificadoScreen: React.FC = () => {
     style={styles.botao}
     onPress={() => Linking.openURL(item.arquivo)}
   >
+  {/* {item.arquivo && (
+  <TouchableOpacity
+    style={styles.botao}
+    onPress={() => Linking.openURL(`${BASE_URL}${item.arquivo}`)}
+  > */}
     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
       <FontAwesome5 name="file-alt" size={16} color="#fff" />
       <Text style={styles.botaoTexto}>Ver Certificado</Text>

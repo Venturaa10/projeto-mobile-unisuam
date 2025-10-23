@@ -1,6 +1,7 @@
 import { Certificado, Universidade } from "../initModels.js";
 import fs from "fs";
-import { supabase } from "../config/supabase.js";
+// import { supabase } from "../config/supabase.js";
+import path from "path";
 
 
 export const criarCertificado = async (req, res) => {
@@ -76,7 +77,58 @@ console.log("Buckets:", data, "Error:", uploadError);
   }
 };
 
+// Criar certificado local.
+// export const criarCertificado = async (req, res) => {
+//   try {
+//     const { nomeAluno, cpfAluno, matricula, nomeCurso, universidadeId } = req.body;
 
+//     let arquivoUrl = null;
+
+//     // Verifica se veio arquivo
+//     if (req.file) {
+//       const uploadsDir = path.join(process.cwd(), "backend", "uploads");
+
+//       // Cria a pasta se não existir
+//       if (!fs.existsSync(uploadsDir)) {
+//         fs.mkdirSync(uploadsDir, { recursive: true });
+//       }
+
+//       const originalNameDecoded = decodeURIComponent(req.file.originalname);
+//       const fileName = `${Date.now()}-${originalNameDecoded
+//         .replace(/\.[^/.]+$/, "")
+//         .replace(/\s+/g, "_")
+//         .replace(/[^\w\-]/g, "")}.pdf`;
+
+//       const filePath = path.join(uploadsDir, fileName);
+
+//       // Move o arquivo do local temporário para uploads/
+//       fs.renameSync(req.file.path, filePath);
+
+//       // URL local (exemplo: http://localhost:3000/uploads/arquivo.pdf)
+//       arquivoUrl = `/uploads/${fileName}`;
+
+//       console.log("📄 Arquivo salvo localmente em:", filePath);
+//     }
+
+//     // Cria o registro no banco
+//     const certificado = await Certificado.create({
+//       nomeAluno,
+//       cpfAluno: cpfAluno.replace(/\D/g, ""),
+//       matricula,
+//       nomeCurso,
+//       dataEmissao: new Date(),
+//       arquivo: arquivoUrl,
+//       universidadeId,
+//     });
+
+//     console.log("✅ Certificado criado:", certificado);
+//     res.status(201).json(certificado);
+
+//   } catch (err) {
+//     console.error("❌ Erro ao criar certificado:", err);
+//     res.status(400).json({ error: err.message });
+//   }
+// };
 
 // Listar certificados por CPF
 export const listarCertificadosPorCpf = async (req, res) => {
